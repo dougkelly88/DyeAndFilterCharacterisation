@@ -54,3 +54,25 @@ def displaySpectra(spectra):
         plt.plot(spectrum[:,0], spectrum[:,1], c)
         
     plt.show()
+    
+def interpolateSpectrum(spectrum):
+    
+    interpSpectrum = 0
+    return interpSpectrum
+    
+def integrateSpectra(spectra, dlambda):
+    """ take list of spectra, and return integral of their product over the largest possible range"""
+    
+    lowerLimit = max( [min(spectrum[:,0]) for spectrum in spectra] )
+    upperLimit = min( [max(spectrum[:,0]) for spectrum in spectra] )
+    
+    trimmedSpectra = [spectrum[(spectrum[:,0] >= lowerLimit) & (spectrum[:,0] <= upperLimit)] for spectrum in spectra]
+    
+    product = trimmedSpectra[0][:,1]
+    for idx in np.arange(1,len(spectra)):
+        product = np.multiply(product, trimmedSpectra[idx][:,1])
+    
+    integral = np.sum(product) * dlambda
+    
+    return integral
+    
