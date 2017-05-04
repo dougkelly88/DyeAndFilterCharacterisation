@@ -13,7 +13,9 @@ import utils
 
 class Dye(object):
     """ A class defining a general fluorescent dye. """
-    """QY: fractional value for quantum yield. 
+    
+    """
+    QY: fractional value for quantum yield. 
     epsilon: absorption coefficient at the longest wavelength absorption maximum in M^-1 cm^-1
     absorptionSpectrum: Nx2 array with wavelength in first column and absorption in the second. If a filename is passed, then absorption spectrum is read from this file. 
     emissionSpectrum: Nx2 array with wavelength in first column and emission in the second. If a filename is passed, then emission spectrum is read from this file. 

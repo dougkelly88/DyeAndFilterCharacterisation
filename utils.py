@@ -31,14 +31,15 @@ def readSpectrumFile(filename):
     
     sp = []
     
+    # use ValueError to deal with varied header length/format
     with open(filename, 'r') as csvf:
         rdr = csv.reader(csvf, delimiter='\t')
         for row in rdr:
-            if (row[0] == 'wavelength') or (row[0] == 'nm'):
+            try:
+                sp.append([float(x.rstrip()) for x in row])
+            except ValueError:
                 continue
-            else:
-                sp.append([float(x) for x in row])
-            
+                
     spectrum = np.array(sp)
     # check array is right shape and throw error if not
     return spectrum

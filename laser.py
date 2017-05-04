@@ -12,7 +12,8 @@ import utils
 class Laser(object):
     """ A class defining a general laser source"""
     
-    """channel = string descrbing laser channel, for reference
+    """
+    channel = string descrbing laser channel, for reference
     centreWavelength = nominal wavelength of laser, in nm
     fwhmNm = (nominal) FWHM of laser about central wavelength - NOT SIGMA
     laserOutputPowerMw = measured output power after laser
@@ -34,20 +35,25 @@ class Laser(object):
         if fwhmNm is not None:
             self.fwhmNm = fwhmNm
         if laserOutputPowerMw is not None:
-            self.laserOutputPowerMw =laserOutputPowerMw
+            self.setLaserOutputPower(laserOutputPowerMw)
         if laserProfile is not None:
             self.setLaserProfile(laserProfile)
         
         
     def setCentreWavelength(self, wavelength):
         self.centreWavelengthNm = wavelength
-        sigma = (1 / 2 * np.sqrt(2 * np.log(self.fwhm)))
-        self.laserProfile = self.makeGaussian(self.laserOutputPowerMw, self.centreWavelenghNm, sigma)
+        sigma = (1 / 2 * np.sqrt(2 * np.log(self.fwhmNm)))
+        self.laserProfile = utils.makeGaussian(self.laserOutputPowerMw, self.centreWavelengthNm, sigma)
         
     def setFWHM(self, fwhm):
         self.fwhmNm = fwhm
-        sigma = (1 / 2 * np.sqrt(2 * np.log(self.fwhm)))
-        self.laserProfile = self.makeGaussian(self.laserOutputPowerMw, self.centreWavelenghNm, sigma)
+        sigma = (1 / 2 * np.sqrt(2 * np.log(self.fwhmNm)))
+        self.laserProfile = utils.makeGaussian(self.laserOutputPowerMw, self.centreWavelengthNm, sigma)
+        
+    def setLaserOutputPower(self, power):
+        self.laserOutputPowerMw = power
+        sigma = (1 / 2 * np.sqrt(2 * np.log(self.fwhmNm)))
+        self.laserProfile = utils.makeGaussian(self.laserOutputPowerMw, self.centreWavelengthNm, sigma)
         
     def setChannel(self, channel):
         self.channel = channel
@@ -62,5 +68,6 @@ class Laser(object):
         elif isinstance(laserProfile, str):
             self.laserProfile = utils.readSpectrumFile(laserProfile)
             
-    
+    def displayLaserProfile(self):
+        utils.displaySpectra([self.laserProfile])
             
