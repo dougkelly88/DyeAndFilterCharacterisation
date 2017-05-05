@@ -16,7 +16,7 @@ class Laser(object):
     channel = string descrbing laser channel, for reference
     centreWavelength = nominal wavelength of laser, in nm
     fwhmNm = (nominal) FWHM of laser about central wavelength - NOT SIGMA
-    laserOutputPowerMw = measured output power after laser
+    laserOutputPowerMw = measured output power after laser - for now, also after 
     laserProfile = wavelength profile of the laser"""
     
     channel = 'L000nm'
@@ -24,7 +24,7 @@ class Laser(object):
     fwhmNm = 3
     laserOutputPowerMw = 10
     laserProfile = utils.makeGaussian(laserOutputPowerMw, centreWavelengthNm, 
-                                      (1 / 2 * np.sqrt(2 * np.log(fwhmNm))))
+                                      fwhmNm / (2 * np.sqrt(2 * np.log(2))))
     
     def __init__(self, channel = None, centreWavelengthNm = None, fwhmNm = None, 
                  laserOutputPowerMw = None, laserProfile = None):
@@ -42,17 +42,17 @@ class Laser(object):
         
     def setCentreWavelength(self, wavelength):
         self.centreWavelengthNm = wavelength
-        sigma = (1 / 2 * np.sqrt(2 * np.log(self.fwhmNm)))
+        sigma = self.fwhmNm / (2 * np.sqrt(2 * np.log(2)))
         self.laserProfile = utils.makeGaussian(self.laserOutputPowerMw, self.centreWavelengthNm, sigma)
         
     def setFWHM(self, fwhm):
         self.fwhmNm = fwhm
-        sigma = (1 / 2 * np.sqrt(2 * np.log(self.fwhmNm)))
+        sigma = self.fwhmNm / (2 * np.sqrt(2 * np.log(2)))
         self.laserProfile = utils.makeGaussian(self.laserOutputPowerMw, self.centreWavelengthNm, sigma)
         
     def setLaserOutputPower(self, power):
         self.laserOutputPowerMw = power
-        sigma = (1 / 2 * np.sqrt(2 * np.log(self.fwhmNm)))
+        sigma = self.fwhmNm / (2 * np.sqrt(2 * np.log(2)))
         self.laserProfile = utils.makeGaussian(self.laserOutputPowerMw, self.centreWavelengthNm, sigma)
         
     def setChannel(self, channel):
@@ -71,3 +71,8 @@ class Laser(object):
     def displayLaserProfile(self):
         utils.displaySpectra([self.laserProfile])
             
+            
+l = Laser()
+l.setCentreWavelength(594)
+l.setFWHM(1.01)
+l.setLaserOutputPower(101)

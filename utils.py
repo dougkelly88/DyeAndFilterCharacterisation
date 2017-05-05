@@ -36,7 +36,10 @@ def readSpectrumFile(filename):
         rdr = csv.reader(csvf, delimiter='\t')
         for row in rdr:
             try:
-                sp.append([float(x.rstrip()) for x in row])
+                # test that [float...] is 2 elements; otherwise skip. Deals with odd numbers at bottom of some spectra files
+                r = [float(x.rstrip()) for x in row]
+                if len(r) == 2:
+                    sp.append(r)
             except ValueError:
                 continue
           
@@ -56,13 +59,15 @@ def displaySpectra(spectra):
     plt.show()
     
 def interpolateSpectrum(spectrum, dlambda):
+    """take input spectrum and interpolate to sample every dlambda - be careful of cases with spectra narrower than dlambda"""    
     
     wlIn = spectrum[:,0]
-    wlInterp = dlambda * ( np.arange( np.round(min(wlIn/dlambda)), 
-                                                np.round(max(wlIn/dlambda))))
+    wlInterp = dlambda * ( np.arange( np.floor(min(wlIn/dlambda)), 
+                                                np.ceil(max(wlIn/dlambda))))
     spectrumIn = spectrum[:,1]                                                                                        
     
     interpSpectrum = np.column_stack((wlInterp, np.interp(wlInterp, wlIn, spectrumIn)))
+
     return interpSpectrum
     
 def integrateSpectra(spectra, dlambda):
@@ -72,7 +77,7 @@ def integrateSpectra(spectra, dlambda):
     spectra = list of Nx2 arrays describing filter or dye spectra, or laser wavelength profile
     dlambda = wavelength difference betweeen adjacent values in the spectra
     """
-        
+
     lowerLimit = max( [min(spectrum[:,0]) for spectrum in spectra] )
     upperLimit = min( [max(spectrum[:,0]) for spectrum in spectra] )
     

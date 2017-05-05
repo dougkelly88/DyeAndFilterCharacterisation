@@ -3,6 +3,8 @@
 Created on Thu May  4 07:59:37 2017
 
 @author: d.kelly
+
+TODO: support "compound" filters, e.g. in 532 emission
 """
 
 import numpy as np
