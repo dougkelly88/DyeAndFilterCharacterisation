@@ -5,10 +5,12 @@ Created on Thu May  4 18:24:42 2017
 @author: d.kelly
 
 TODO: wavelength-dependent loss from other optics. Camera sensitivity?
-TODO: error handling
+TODO: error handling - suppress divide by zero warning for log10 step?
 """
 
 import os
+import numpy as np
+import matplotlib.pyplot as plt
 
 from dye import Dye
 from laser import Laser
@@ -56,21 +58,54 @@ def signalFromDyeXInChannelY(laser, filtercube, dye):
     return dye_label, channel_label, signal
 
 def displayCrosstalkPlot(lsrList, filtercubeList, dyeList):
+    """ display a heatmap showing the log10 of crosstalk contribution from each fluorescent species to total signal in each detection channel"""
 
     signals = []
     ch_labels = [x.channel for x in filtercubeList]
     dye_labels = [x.name for x in dyeList]
+
     
     for chidx, lsr in enumerate(lsrList):
         fc = filtercubeList[chidx]
         
         for dye in dyeList:
             dum1, dum2, signal = signalFromDyeXInChannelY(lsr, fc, dye)
+#            dye_labels.append(dye.name)
+#            ch_labels.append(lsr.channel)
             signals.append(signal)
             
     print(ch_labels)
     print(dye_labels)        
     print(signals)
+    
+    sigArray = np.array(signals).reshape([len(filtercubeList), len(dyeList)])
+    maxes = np.amax(sigArray, 0)
+    crosstalkMatrix = sigArray / maxes[:, None]
+#    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    plt.imshow(np.log10(crosstalkMatrix), cmap = 'Reds', interpolation='none')
+    hax = plt.gca()
+    hcbar = plt.colorbar()
+    hcbar.ax.get_yaxis().labelpad = 15    
+    hcbar.ax.set_ylabel('log_10 of crosstalk as % signal', rotation=90)
+    hax.set_xlabel('Detection channel')
+    hax.set_ylabel('Dye contributing to signal')
+    ch_labels.insert(0, '')   # hacky solution...
+    dye_labels.insert(0, '')
+    hax.set_xticklabels(ch_labels, rotation=90)
+    hax.set_yticklabels(dye_labels)
+    
+    # handles maximising the image
+    try:
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()   
+    except:
+        print('backend doesn''t support maximised screen in this implementation!')
+    
+    plt.show()
+    
+    return sigArray
+    
 
 dyesPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Dye spectra')
 filtersPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Filter spectra')
@@ -90,7 +125,7 @@ Semrock filters: http://www.laser2000.co.uk
 Chroma 700 dichroics: emailed from Chroma
 """
 
-dye405 = Dye(name = 'Alexa405', epsilon = '35000', qy = 0.54, 
+dye405 = Dye(name = 'Alexa405', epsilon = 35000, qy = 0.54, 
              absSpectrum = os.path.join(dyesPath, 'Alexa405abs.txt'), 
              emSpectrum = os.path.join(dyesPath, 'Alexa405em.txt'))
           
@@ -169,4 +204,8 @@ d, ch, ct = signalFromDyeXInChannelY(l700, fc700new, dye633)
 print('Crosstalk from 633 in new 700 channel as a fraction of signal:')
 print(ct/sig)
 
-#displayCrosstalkPlot([l633], [fc633], [dye633, dye700])
+## debug
+#d, ch, sig = signalFromDyeXInChannelY(l405, fc405, dye405)
+#print('{} dye, detection channel {}, signal = {}'.format(d,ch,sig))
+
+displayCrosstalkPlot([l405, l532, l594, l633, l700], [fc405, fc532, fc594, fc633, fc700old], [dye405, dye532, dye594, dye633, dye700])
