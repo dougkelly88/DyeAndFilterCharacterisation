@@ -39,7 +39,7 @@ def readSpectrumFile(filename):
                 sp.append([float(x.rstrip()) for x in row])
             except ValueError:
                 continue
-                
+          
     spectrum = np.array(sp)
     # check array is right shape and throw error if not
     return spectrum
@@ -55,14 +55,24 @@ def displaySpectra(spectra):
         
     plt.show()
     
-def interpolateSpectrum(spectrum):
+def interpolateSpectrum(spectrum, dlambda):
     
-    interpSpectrum = 0
+    wlIn = spectrum[:,0]
+    wlInterp = dlambda * ( np.arange( np.round(min(wlIn/dlambda)), 
+                                                np.round(max(wlIn/dlambda))))
+    spectrumIn = spectrum[:,1]                                                                                        
+    
+    interpSpectrum = np.column_stack((wlInterp, np.interp(wlInterp, wlIn, spectrumIn)))
     return interpSpectrum
     
 def integrateSpectra(spectra, dlambda):
     """ take list of spectra, and return integral of their product over the largest possible range"""
     
+    """
+    spectra = list of Nx2 arrays describing filter or dye spectra, or laser wavelength profile
+    dlambda = wavelength difference betweeen adjacent values in the spectra
+    """
+        
     lowerLimit = max( [min(spectrum[:,0]) for spectrum in spectra] )
     upperLimit = min( [max(spectrum[:,0]) for spectrum in spectra] )
     
