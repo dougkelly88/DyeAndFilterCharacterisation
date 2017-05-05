@@ -4,6 +4,11 @@ Created on Thu May  4 18:24:42 2017
 
 @author: d.kelly
 
+Tools to investigate the suitability of optics to detect fluorescent signals 
+in multiple channels. Crucially, we want to minimise crosstalk from other
+fluorescent species than the one being interrogated. 
+
+
 TODO: wavelength-dependent loss from other optics. Camera sensitivity?
 TODO: error handling - suppress divide by zero warning for log10 step?
 """
