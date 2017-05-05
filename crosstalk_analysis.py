@@ -79,15 +79,15 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList):
     print(signals)
     
     sigArray = np.array(signals).reshape([len(filtercubeList), len(dyeList)])
-    maxes = np.amax(sigArray, 0)
-    crosstalkMatrix = sigArray / maxes[:, None]
+    totalSigs = np.sum(sigArray, 0)
+    crosstalkMatrix = sigArray / totalSigs[:, None]
 #    plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
     plt.imshow(np.log10(crosstalkMatrix), cmap = 'Reds', interpolation='none')
     hax = plt.gca()
     hcbar = plt.colorbar()
     hcbar.ax.get_yaxis().labelpad = 15    
-    hcbar.ax.set_ylabel('log_10 of crosstalk as % signal', rotation=90)
+    hcbar.ax.set_ylabel('log_10 of crosstalk as fraction of signal', rotation=90)
     hax.set_xlabel('Detection channel')
     hax.set_ylabel('Dye contributing to signal')
     ch_labels.insert(0, '')   # hacky solution...
@@ -104,7 +104,7 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList):
     
     plt.show()
     
-    return sigArray
+    return crosstalkMatrix
     
 
 dyesPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Dye spectra')
@@ -208,4 +208,4 @@ print(ct/sig)
 #d, ch, sig = signalFromDyeXInChannelY(l405, fc405, dye405)
 #print('{} dye, detection channel {}, signal = {}'.format(d,ch,sig))
 
-displayCrosstalkPlot([l405, l532, l594, l633, l700], [fc405, fc532, fc594, fc633, fc700old], [dye405, dye532, dye594, dye633, dye700])
+out = displayCrosstalkPlot([l405, l532, l594, l633, l700], [fc405, fc532, fc594, fc633, fc700old], [dye405, dye532, dye594, dye633, dye700])
