@@ -84,7 +84,7 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList):
     print(signals)
     
     sigArray = np.array(signals).reshape([len(filtercubeList), len(dyeList)])
-    totalSigs = np.sum(sigArray, 0)
+    totalSigs = np.sum(sigArray, 1)
     crosstalkMatrix = sigArray / totalSigs[:, None]
 #    plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
@@ -99,6 +99,11 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList):
     dye_labels.insert(0, '')
     hax.set_xticklabels(ch_labels, rotation=90)
     hax.set_yticklabels(dye_labels)
+    
+    # add data labels
+    for x in range(len(ch_labels) - 1):
+        for y in range(len(dye_labels) - 1):
+            plt.text(x,y,'{:0.2f}'.format(crosstalkMatrix[x,y]), horizontalalignment='center', verticalalignment='center', color = 'c')
     
     # handles maximising the image
     try:
@@ -200,17 +205,17 @@ d, ch, sig = signalFromDyeXInChannelY(l700, fc700old, dye700)
 d, ch, ct = signalFromDyeXInChannelY(l700, fc700old, dye633)
 
 print('Crosstalk from 633 in old 700 channel as a fraction of signal:')
-print(ct/sig)
+print(100*ct/sig)
 
 
 d, ch, sig = signalFromDyeXInChannelY(l700, fc700new, dye700)
 d, ch, ct = signalFromDyeXInChannelY(l700, fc700new, dye633)
 
 print('Crosstalk from 633 in new 700 channel as a fraction of signal:')
-print(ct/sig)
+print(100*ct/sig)
 
 ## debug
 #d, ch, sig = signalFromDyeXInChannelY(l405, fc405, dye405)
 #print('{} dye, detection channel {}, signal = {}'.format(d,ch,sig))
 
-out = displayCrosstalkPlot([l405, l532, l594, l633, l700], [fc405, fc532, fc594, fc633, fc700old], [dye405, dye532, dye594, dye633, dye700])
+out = displayCrosstalkPlot([l405, l532, l594, l633, l700], [fc405, fc532, fc594, fc633, fc700new], [dye405, dye532, dye594, dye633, dye700])
