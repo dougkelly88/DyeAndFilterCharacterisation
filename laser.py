@@ -71,8 +71,8 @@ class Laser(object):
     def displayLaserProfile(self):
         utils.displaySpectra([self.laserProfile])
             
-            
-l = Laser()
-l.setCentreWavelength(594)
-l.setFWHM(1.01)
-l.setLaserOutputPower(101)
+#            
+#l = Laser()
+#l.setCentreWavelength(594)
+#l.setFWHM(1.01)
+#l.setLaserOutputPower(101)
