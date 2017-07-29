@@ -28,8 +28,8 @@ import utils
 def signalFromDyeXInChannelY(laser, filtercube, dye, objective, camera):
     
     # error checking - verify input types
-    if (laser.channel is not filtercube.channel):
-        return 0, 0, 0  # throw more informative error...
+#    if (laser.channel is not filtercube.channel):
+#        return "error", "error", "error"  # throw more informative error...
     
     dye_label = dye.name
     channel_label = laser.channel
@@ -45,22 +45,25 @@ def signalFromDyeXInChannelY(laser, filtercube, dye, objective, camera):
     objSpectrum = utils.interpolateSpectrum(objective.transmissionCurve, dlambda)
     camQE = utils.interpolateSpectrum(camera.qeCurve, dlambda)
     
-    # normalise dye absorption;  multiply absorption by absorption coeff. 
+    # normalise dye absorption
     # deal with the fact that on the excitation path we are concerned with how much light is REFLECTED by the dichroic - assume zero absorption    
     diFiltIn = diFilt
     diFiltIn[:,1] = 1 - diFilt[:,1]
-    absSpectrum[:,1] = absSpectrum[:,1] / max(absSpectrum[:,1]) * dye.epsilon
+    absSpectrum[:,1] = absSpectrum[:,1] / max(absSpectrum[:,1]) 
     
-    # normalise dye emission; multiply by QY
-    emSpectrum[:,1] = emSpectrum[:,1] / max(emSpectrum[:,1]) * dye.QY
+    # normalise dye emission
+    emSpectrum[:,1] = emSpectrum[:,1] / max(emSpectrum[:,1])
     
     # multiply together including laser, integrate over wavelengths (0.5 nm d(lambda)) - PAY ATTENTION TO LIMITS!      
     exSpectraList = [lsr, exFilt, diFiltIn, absSpectrum, objSpectrum]
     emSpectraList = [emSpectrum, diFilt, emFilt, camQE, objSpectrum]
     
         
-    exTerm = utils.integrateSpectra(exSpectraList, dlambda)
-    emTerm = utils.integrateSpectra(emSpectraList, dlambda)
+    # integrate spectra and multiply by absorption coeff and QY respectively
+    exTerm = utils.integrateSpectra(exSpectraList, dlambda) * dye.epsilon
+    print('exTerm = {:0.1f}'.format(exTerm))
+    emTerm = utils.integrateSpectra(emSpectraList, dlambda)  * dye.QY
+    print('emTerm = {:0.1f}'.format(emTerm))
 
     signal = exTerm * emTerm
     
@@ -125,10 +128,10 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList, objective, camera):
     return crosstalkMatrix
     
 
-#dyesPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Dye spectra')
-#filtersPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Filter spectra')
-#opticsPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Optics spectra')
-#cameraPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Camera spectra')
+dyesPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Dye spectra')
+filtersPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Filter spectra')
+opticsPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Optics spectra')
+cameraPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Camera spectra')
 #
 #
 ## seems a bit boilerplate-y? Work into a loop somehow?
@@ -145,76 +148,76 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList, objective, camera):
 #Chroma 700 dichroics: emailed from Chroma
 #"""
 #
-#dye405 = Dye(name = 'Alexa405', epsilon = 35000, qy = 0.54, 
-#             absSpectrum = os.path.join(dyesPath, 'Alexa405abs.txt'), 
-#             emSpectrum = os.path.join(dyesPath, 'Alexa405em.txt'))
-#          
-#dye532 = Dye(name = 'Atto532', epsilon = 115000, qy = 0.9, 
-#             absSpectrum = os.path.join(dyesPath, 'ATTO532_PBS.abs.txt'), 
-#             emSpectrum = os.path.join(dyesPath, 'ATTO532_PBS.ems.txt'))
-#
-#dye594 = Dye(name = 'Atto594', epsilon = 120000, qy = 0.85, 
-#             absSpectrum = os.path.join(dyesPath, 'ATTO594_PBS.abs.txt'), 
-#             emSpectrum = os.path.join(dyesPath, 'ATTO594_PBS.ems.txt'))
-#
-#dye633 = Dye(name = "Atto655", epsilon = 125000, qy = 0.3, 
-#          absSpectrum = os.path.join(dyesPath, 'ATTO655_PBS.abs.txt'), 
-#          emSpectrum = os.path.join(dyesPath, 'ATTO655_PBS.ems.txt') )        
-#
-#dye700 = Dye(name = "Atto700", epsilon = 120000, qy = 0.25, 
-#          absSpectrum = os.path.join(dyesPath, 'ATTO700_PBS.abs.txt'), 
-#          emSpectrum = os.path.join(dyesPath, 'ATTO700_PBS.ems.txt') )         
-#          
-#l405 = Laser(channel = 'L405Nm', centreWavelengthNm = 405, fwhmNm = 0.01, 
-#             laserOutputPowerMw = 3)
-#             
-#l532 = Laser(channel = 'L532Nm', centreWavelengthNm = 532, fwhmNm = 0.01, 
-#             laserOutputPowerMw = 18)
-#             
-#l594 = Laser(channel = 'L594Nm', centreWavelengthNm = 594, fwhmNm = 0.01, 
-#             laserOutputPowerMw = 25)             
-#          
-#l633 = Laser(channel = 'L633Nm', centreWavelengthNm = 640, fwhmNm = 0.01, 
-#             laserOutputPowerMw = 30)
-#          
-#l700 = Laser(channel = 'L700Nm', centreWavelengthNm = 701, fwhmNm = 0.01, 
-#             laserOutputPowerMw = 30)
-#             
-#fc405 = FilterCube(channel = 'L405Nm', 
-#                   excitationFilter = ( 'FF01-390_40', os.path.join(filtersPath, 'FF01-390_40_Spectrum.txt') ), 
-#                   dichroicFilter = ( 'Di02-R405', os.path.join(filtersPath, 'Di02-R405_Spectrum.txt') ), 
-#                   emissionFilter = ( 'FF01-452_45', os.path.join(filtersPath, 'FF01-452_45_Spectrum.txt') ) )
-#                   
-#fc532 = FilterCube(channel = 'L532Nm', 
-#                   excitationFilter = ( 'FF01-532_3', os.path.join(filtersPath, 'FF01-532_3_spectrum.txt') ), 
-#                   dichroicFilter = ( 'Di02-R532', os.path.join(filtersPath, 'Di02-R532_Spectrum.txt') ), 
-#                   emissionFilter = ( 'FF01-562_40', os.path.join(filtersPath, 'FF01-562_40_spectrum.txt') ) )
-#                   
-#fc594 = FilterCube(channel = 'L594Nm', 
-#                   excitationFilter = ( 'FF01-591_6', os.path.join(filtersPath, 'FF01-591_6_Spectrum.txt') ), 
-#                   dichroicFilter = ( 'Di02-R594', os.path.join(filtersPath, 'Di02-R594_Spectrum.txt') ), 
-#                   emissionFilter = ( 'FF01-647_57', os.path.join(filtersPath, 'FF01-647_57_Spectrum.txt') ) )
-#             
-#fc633 = FilterCube(channel = 'L633Nm', 
-#                   excitationFilter = ( 'FF01-640_14', os.path.join(filtersPath, 'FF01-640_14_spectrum.txt') ), 
-#                   dichroicFilter = ( 'Di02-R635', os.path.join(filtersPath, 'Di02-R635_Spectrum.txt') ), 
-#                   emissionFilter = ( 'FF01-679_41', os.path.join(filtersPath, 'FF01-679_41_Spectrum.txt') ) )
-#                   
-#fc700old = FilterCube(channel = 'L700Nm', 
-#                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
-#                   dichroicFilter = ( '725dcxxr', os.path.join(filtersPath, 'Chroma 725dcxxr.txt') ), 
-#                   emissionFilter = ( 'FF01-795_150', os.path.join(filtersPath, 'FF01-795_150_Spectrum.txt') ) )
-#                   
-#fc700new = FilterCube(channel = 'L700Nm', 
-#                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
-#                   dichroicFilter = ( '725lpxr', os.path.join(filtersPath, 'Chroma 725lpxr.txt') ), 
-#                   emissionFilter = ( 'FF01-747_33', os.path.join(filtersPath, 'FF01-747_33_Spectrum.txt') ) )
-#                   
-#                   
-#camera = Camera(name = 'Andor Zyla 5.5', qeCurve = 1)
-#
-#objective = Objective(name = 'Olympus UPLANSAPO20x 0.75NA', transmissionCurve = 1)
-#                           
+dye405 = Dye(name = 'Alexa405', epsilon = 35000, qy = 0.54, 
+             absSpectrum = os.path.join(dyesPath, 'Alexa405abs.txt'), 
+             emSpectrum = os.path.join(dyesPath, 'Alexa405em.txt'))
+          
+dye532 = Dye(name = 'Atto532', epsilon = 115000, qy = 0.9, 
+             absSpectrum = os.path.join(dyesPath, 'ATTO532_PBS.abs.txt'), 
+             emSpectrum = os.path.join(dyesPath, 'ATTO532_PBS.ems.txt'))
+
+dye594 = Dye(name = 'Atto594', epsilon = 120000, qy = 0.85, 
+             absSpectrum = os.path.join(dyesPath, 'ATTO594_PBS.abs.txt'), 
+             emSpectrum = os.path.join(dyesPath, 'ATTO594_PBS.ems.txt'))
+
+dye633 = Dye(name = "Atto655", epsilon = 125000, qy = 0.3, 
+          absSpectrum = os.path.join(dyesPath, 'ATTO655_PBS.abs.txt'), 
+          emSpectrum = os.path.join(dyesPath, 'ATTO655_PBS.ems.txt') )        
+
+dye700 = Dye(name = "Atto700", epsilon = 120000, qy = 0.25, 
+          absSpectrum = os.path.join(dyesPath, 'ATTO700_PBS.abs.txt'), 
+          emSpectrum = os.path.join(dyesPath, 'ATTO700_PBS.ems.txt') )         
+          
+l405 = Laser(channel = 'L405Nm', centreWavelengthNm = 405, fwhmNm = 0.01, 
+             laserOutputPowerMw = 3)
+             
+l532 = Laser(channel = 'L532Nm', centreWavelengthNm = 532, fwhmNm = 0.01, 
+             laserOutputPowerMw = 18)
+             
+l594 = Laser(channel = 'L594Nm', centreWavelengthNm = 594, fwhmNm = 0.01, 
+             laserOutputPowerMw = 25)             
+          
+l633 = Laser(channel = 'L633Nm', centreWavelengthNm = 640, fwhmNm = 0.01, 
+             laserOutputPowerMw = 30)
+          
+l700 = Laser(channel = 'L700Nm', centreWavelengthNm = 701, fwhmNm = 0.01, 
+             laserOutputPowerMw = 30)
+             
+fc405 = FilterCube(channel = 'L405Nm', 
+                   excitationFilter = ( 'FF01-390_40', os.path.join(filtersPath, 'FF01-390_40_Spectrum.txt') ), 
+                   dichroicFilter = ( 'Di02-R405', os.path.join(filtersPath, 'Di02-R405_Spectrum.txt') ), 
+                   emissionFilter = ( 'FF01-452_45', os.path.join(filtersPath, 'FF01-452_45_Spectrum.txt') ) )
+                   
+fc532 = FilterCube(channel = 'L532Nm', 
+                   excitationFilter = ( 'FF01-532_3', os.path.join(filtersPath, 'FF01-532_3_spectrum.txt') ), 
+                   dichroicFilter = ( 'Di02-R532', os.path.join(filtersPath, 'Di02-R532_Spectrum.txt') ), 
+                   emissionFilter = ( 'FF01-562_40', os.path.join(filtersPath, 'FF01-562_40_spectrum.txt') ) )
+                   
+fc594 = FilterCube(channel = 'L594Nm', 
+                   excitationFilter = ( 'FF01-591_6', os.path.join(filtersPath, 'FF01-591_6_Spectrum.txt') ), 
+                   dichroicFilter = ( 'Di02-R594', os.path.join(filtersPath, 'Di02-R594_Spectrum.txt') ), 
+                   emissionFilter = ( 'FF01-647_57', os.path.join(filtersPath, 'FF01-647_57_Spectrum.txt') ) )
+             
+fc633 = FilterCube(channel = 'L633Nm', 
+                   excitationFilter = ( 'FF01-640_14', os.path.join(filtersPath, 'FF01-640_14_spectrum.txt') ), 
+                   dichroicFilter = ( 'Di02-R635', os.path.join(filtersPath, 'Di02-R635_Spectrum.txt') ), 
+                   emissionFilter = ( 'FF01-679_41', os.path.join(filtersPath, 'FF01-679_41_Spectrum.txt') ) )
+                   
+fc700old = FilterCube(channel = 'L700Nm', 
+                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
+                   dichroicFilter = ( '725dcxxr', os.path.join(filtersPath, 'Chroma 725dcxxr.txt') ), 
+                   emissionFilter = ( 'FF01-795_150', os.path.join(filtersPath, 'FF01-795_150_Spectrum.txt') ) )
+                   
+fc700new = FilterCube(channel = 'L700Nm', 
+                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
+                   dichroicFilter = ( '725lpxr', os.path.join(filtersPath, 'Chroma 725lpxr.txt') ), 
+                   emissionFilter = ( 'FF01-747_33', os.path.join(filtersPath, 'FF01-747_33_Spectrum.txt') ) )
+                   
+                   
+camera = Camera(name = 'Andor Zyla 5.5', qeCurve = 1)
+
+objective = Objective(name = 'Olympus UPLANSAPO20x 0.75NA', transmissionCurve = 1)
+                           
 #
 #d, ch, sig = signalFromDyeXInChannelY(l700, fc700old, dye700)
 #d, ch, ct = signalFromDyeXInChannelY(l700, fc700old, dye633)
@@ -234,3 +237,6 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList, objective, camera):
 ###print('{} dye, detection channel {}, signal = {}'.format(d,ch,sig))
 ##
 ##out = displayCrosstalkPlot([l405, l532, l594, l633, l700], [fc405, fc532, fc594, fc633, fc700new], [dye405, dye532, dye594, dye633, dye700])
+
+#zip()
+signalFromDyeXInChannelY(l405, fc405, dye405, objective, camera)

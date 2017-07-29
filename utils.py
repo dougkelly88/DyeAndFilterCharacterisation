@@ -30,7 +30,6 @@ def readSpectrumFile(filename):
     """read a spectrum from a csv/tab delimited txt file, returning an array"""    
     
     sp = []
-    
     # use ValueError to deal with varied header length/format
     with open(filename, 'r') as csvf:
         rdr = csv.reader(csvf, delimiter='\t')
@@ -80,14 +79,30 @@ def integrateSpectra(spectra, dlambda):
 
     lowerLimit = max( [min(spectrum[:,0]) for spectrum in spectra] )
     upperLimit = min( [max(spectrum[:,0]) for spectrum in spectra] )
+
     
     trimmedSpectra = [spectrum[(spectrum[:,0] >= lowerLimit) & (spectrum[:,0] <= upperLimit)] for spectrum in spectra]
     
     product = trimmedSpectra[0][:,1]
     for idx in np.arange(1,len(spectra)):
         product = np.multiply(product, trimmedSpectra[idx][:,1])
+        
+    min_spectrum = min(np.asarray(trimmedSpectra), 1)
+#    fig = plt.figure()        
+#    lmbda = np.linspace(lowerLimit, upperLimit, num=1+(upperLimit-lowerLimit)/dlambda)    
+#    print(lmbda.shape)    
+#    print(product.shape)
+#    
+#    plt.plot(lmbda, product)
     
     integral = np.sum(product) * dlambda
     
     return integral
+    
+def normaliseSpectrum(spectrum):
+    """ Normalise maximum of spectrum to 1 """
+    
+    m = max(spectrum[:,1]);
+    spectrum[:,1] = spectrum[:,1] / m;
+    return spectrum;
     

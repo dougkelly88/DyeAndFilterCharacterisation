@@ -79,4 +79,5 @@ class Dye(object):
             self.absorptionSpectrum = utils.readSpectrumFile(absSpectrum)
             
     def displaySpectra(self):
-        utils.displaySpectra([self.absorptionSpectrum, self.emissionSpectrum])
+        utils.displaySpectra([utils.normaliseSpectrum(self.absorptionSpectrum), 
+                              utils.normaliseSpectrum(self.emissionSpectrum)])
