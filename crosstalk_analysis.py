@@ -37,9 +37,9 @@ def signalFromDyeXInChannelY(laser, filtercube, dye, objective, camera):
     # interpolate spectra to 0.5 nm resolution so that all spectra can be easily overlapped
     dlambda = 0.5
     lsr = utils.interpolateSpectrum(laser.laserProfile, dlambda)
-    exFilt = utils.interpolateSpectrum(filtercube.excitationFilter.transmissionSpectrum, dlambda)
-    emFilt = utils.interpolateSpectrum(filtercube.emissionFilter.transmissionSpectrum, dlambda)
-    diFilt = utils.interpolateSpectrum(filtercube.dichroicFilter.transmissionSpectrum, dlambda)
+    exFilt = utils.interpolateSpectrum(filtercube.excitationFilter.getSpectrum(), dlambda)
+    emFilt = utils.interpolateSpectrum(filtercube.emissionFilter.getSpectrum(), dlambda)
+    diFilt = utils.interpolateSpectrum(filtercube.dichroicFilter.getSpectrum(), dlambda)
     absSpectrum = utils.interpolateSpectrum(dye.absorptionSpectrum, dlambda)
     emSpectrum = utils.interpolateSpectrum(dye.emissionSpectrum, dlambda)
     objSpectrum = utils.interpolateSpectrum(objective.transmissionCurve, dlambda)
@@ -47,10 +47,15 @@ def signalFromDyeXInChannelY(laser, filtercube, dye, objective, camera):
     
     # normalise dye absorption
     # deal with the fact that on the excitation path we are concerned with how much light is REFLECTED by the dichroic - assume zero absorption    
-    diFiltIn = diFilt
+    diFiltIn = np.zeros(diFilt.shape)
+    diFiltIn[:,0] = diFilt[:,0]
     diFiltIn[:,1] = 1 - diFilt[:,1]
     absSpectrum[:,1] = absSpectrum[:,1] / max(absSpectrum[:,1]) 
     
+    # debug    
+#    plt.plot(diFilt[:,0], diFilt[:,1], diFiltIn[:,0], diFiltIn[:,1])
+#    plt.show()
+#    
     # normalise dye emission
     emSpectrum[:,1] = emSpectrum[:,1] / max(emSpectrum[:,1])
     
@@ -61,9 +66,9 @@ def signalFromDyeXInChannelY(laser, filtercube, dye, objective, camera):
         
     # integrate spectra and multiply by absorption coeff and QY respectively
     exTerm = utils.integrateSpectra(exSpectraList, dlambda) * dye.epsilon
-    print('exTerm = {:0.1f}'.format(exTerm))
-    emTerm = utils.integrateSpectra(emSpectraList, dlambda)  * dye.QY
-    print('emTerm = {:0.1f}'.format(emTerm))
+#    print('exTerm = {:0.3f}'.format(exTerm))
+    emTerm = utils.integrateSpectra(emSpectraList, dlambda) * dye.QY
+#    print('emTerm = {:0.3f}'.format(emTerm))
 
     signal = exTerm * emTerm
     
@@ -83,21 +88,17 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList, objective, camera):
         for dye in dyeList:
             dum1, dum2, signal = signalFromDyeXInChannelY(lsr, fc, dye, 
                                                           objective, camera)
-#            dye_labels.append(dye.name)
-#            ch_labels.append(lsr.channel)
             signals.append(signal)
             
-#    print(ch_labels)
-#    print(dye_labels)        
-#    print(signals)
                
     sigArray = np.array(signals).reshape([len(filtercubeList), len(dyeList)])
     totalSigs = np.sum(sigArray, 1)
     crosstalkMatrix = sigArray / totalSigs[:, None]
 #    plt.rc('text', usetex=True)
+    hfig = plt.figure();
     plt.rc('font', family='serif')
     plt.imshow(np.log10(crosstalkMatrix), cmap = 'Reds', interpolation='none')
-    hax = plt.gca()
+    hax = hfig.gca()
     hcbar = plt.colorbar()
     hcbar.ax.get_yaxis().labelpad = 15    
     hcbar.ax.set_ylabel('log_10 of crosstalk as fraction of signal', rotation=90)
@@ -122,11 +123,45 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList, objective, camera):
 #        figManager.window.showMaximized()   
 #    except:
 #        print('backend doesn''t support maximised screen in this implementation!')
-#    
+#   
+    
     plt.show()
     
     return crosstalkMatrix
     
+
+#def show_dye_emission_enclosed_by_filters(dye, filtercube, objective, camera):
+#    """Given dye and filtercube, give visual indication of overlap"""
+#    
+#    dem = utils.interpolateSpectrum(dye.emissionSpectrum, 0.5)
+#    fem = utils.interpolateSpectrum(filtercube.emissionFilter.getSpectrum(), 0.5)
+#    fdiem = utils.interpolateSpectrum(filtercube.dichroicFilter.getSpectrum(), 0.5)
+#    spectra = [dem, fem, fdiem]
+#    
+#    lowerLimit = max( [min(spectrum[:,0]) for spectrum in spectra] )
+#    upperLimit = min( [max(spectrum[:,0]) for spectrum in spectra] )
+#    
+#    trimmedSpectra = [spectrum[(spectrum[:,0] >= lowerLimit) & (spectrum[:,0] <= upperLimit)] for spectrum in spectra]
+##    for spectrum in trimmedSpectra:
+##        plt.plot(spectrum[:,0], spectrum[:,1])
+##    plt.title('Spectra for overlap')
+##    plt.show()
+#
+#    ovrlp = np.ones((trimmedSpectra[0][:,1].shape))
+#    
+#    for spectrum in trimmedSpectra:
+#        ovrlp = np.multiply(ovrlp, spectrum[:,1])
+#    
+##    print(ovrlp)
+#    
+#    hfig = plt.figure()
+#    plt.title(filtercube.channel)
+#    utils.displaySpectra(trimmedSpectra)
+#    plt.fill_between(trimmedSpectra[0][:,0], ovrlp)
+#        
+#    return np.sum(ovrlp)*0.5, ovrlp
+#          
+
 
 dyesPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Dye spectra')
 filtersPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Filter spectra')
@@ -213,6 +248,39 @@ fc700new = FilterCube(channel = 'L700Nm',
                    dichroicFilter = ( '725lpxr', os.path.join(filtersPath, 'Chroma 725lpxr.txt') ), 
                    emissionFilter = ( 'FF01-747_33', os.path.join(filtersPath, 'FF01-747_33_Spectrum.txt') ) )
                    
+fc405multi = FilterCube(channel = 'L405Nm', 
+                   excitationFilter = ( 'FF01-390_40', os.path.join(filtersPath, 'FF01-390_40_Spectrum.txt') ), 
+                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+                   emissionFilter = ( 'FF01-452_45', os.path.join(filtersPath, 'FF01-452_45_Spectrum.txt') ) )
+                   
+fc532multi = FilterCube(channel = 'L532Nm', 
+                   excitationFilter = ( 'FF01-532_3', os.path.join(filtersPath, 'FF01-532_3_spectrum.txt') ), 
+                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+                   emissionFilter = ( 'FF01-562_40', os.path.join(filtersPath, 'FF01-562_40_spectrum.txt') ) )
+                   
+fc594multi = FilterCube(channel = 'L594Nm', 
+                   excitationFilter = ( 'FF01-591_6', os.path.join(filtersPath, 'FF01-591_6_Spectrum.txt') ), 
+                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+                   emissionFilter = ( 'FF01-647_57', os.path.join(filtersPath, 'FF01-647_57_Spectrum.txt') ) )
+             
+fc633multi = FilterCube(channel = 'L633Nm', 
+                   excitationFilter = ( 'FF01-640_14', os.path.join(filtersPath, 'FF01-640_14_spectrum.txt') ), 
+                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+                   emissionFilter = ( 'FF01-679_41', os.path.join(filtersPath, 'FF01-679_41_Spectrum.txt') ) )
+                   
+fc700multi = FilterCube(channel = 'L700Nm', 
+                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
+                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+                   emissionFilter = ( 'FF01-747_33', os.path.join(filtersPath, 'FF01-747_33_Spectrum.txt') ) )
+
+
+#
+#laser_list = [l405, l532, l594, l633, l700]
+#fc_list = [fc405, fc532, fc594, fc633, fc700new]
+#dye_list = [dye405, dye532, dye594, dye633, dye700]
+#multi_fc_list = [fc405multi, fc532multi, fc594multi, fc633multi, fc700multi]
+
+                   
                    
 camera = Camera(name = 'Andor Zyla 5.5', qeCurve = 1)
 
@@ -239,4 +307,19 @@ objective = Objective(name = 'Olympus UPLANSAPO20x 0.75NA', transmissionCurve = 
 ##out = displayCrosstalkPlot([l405, l532, l594, l633, l700], [fc405, fc532, fc594, fc633, fc700new], [dye405, dye532, dye594, dye633, dye700])
 
 #zip()
-signalFromDyeXInChannelY(l405, fc405, dye405, objective, camera)
+#signalFromDyeXInChannelY(l405, fc405, dye405, objective, camera)
+#
+#ratios = []
+#ch_labels = []
+#
+#for l, f_old, f_new, dy in zip(laser_list, fc_list, multi_fc_list, dye_list):
+#    d, ch, sig_new, prodex1, prodem1 = signalFromDyeXInChannelY(l, f_new, dy, objective, camera)
+#    d, ch, sig_old, prodex2, prodem2 = signalFromDyeXInChannelY(l, f_old, dy, objective, camera)
+#    ol1, dum1em = show_dye_emission_enclosed_by_filters(dy, f_old, objective, camera)
+#    ol2, dum2em = show_dye_emission_enclosed_by_filters(dy, f_new, objective, camera)
+#    print(ch)
+#    print(sig_new/sig_old)
+#    print('ol1 = {:0.3f}'.format(ol1 * dy.QY))
+#    print('ol2 = {:0.3f}'.format(ol2 * dy.QY))
+#    print('Ratio of new:old emission overlaps = {}\n\n'.format(ol2/ol1))
+#    ratios.append(ol2/ol1)

@@ -82,12 +82,22 @@ def integrateSpectra(spectra, dlambda):
 
     
     trimmedSpectra = [spectrum[(spectrum[:,0] >= lowerLimit) & (spectrum[:,0] <= upperLimit)] for spectrum in spectra]
+#    for spectrum in trimmedSpectra:
+#        plt.plot(spectrum[:,0], spectrum[:,1])
+#    plt.title('Spectra for integration')
+#    plt.show()
     
     product = trimmedSpectra[0][:,1]
     for idx in np.arange(1,len(spectra)):
         product = np.multiply(product, trimmedSpectra[idx][:,1])
         
-    min_spectrum = min(np.asarray(trimmedSpectra), 1)
+        
+    product = np.ones((trimmedSpectra[0][:,1].shape))
+    for spectrum in trimmedSpectra:
+        product = np.multiply(product, spectrum[:,1])
+    
+    
+#    min_spectrum = min(np.asarray(trimmedSpectra), 1)
 #    fig = plt.figure()        
 #    lmbda = np.linspace(lowerLimit, upperLimit, num=1+(upperLimit-lowerLimit)/dlambda)    
 #    print(lmbda.shape)    
@@ -96,6 +106,7 @@ def integrateSpectra(spectra, dlambda):
 #    plt.plot(lmbda, product)
     
     integral = np.sum(product) * dlambda
+#    print(product)
     
     return integral
     
