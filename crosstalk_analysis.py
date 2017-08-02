@@ -23,20 +23,21 @@ from laser import Laser
 from filterCube import FilterCube
 from camera import Camera
 from objective import Objective
+from broadbandSource import BroadbandSource
 import utils
 
-def signalFromDyeXInChannelY(laser, filtercube, dye, objective, camera):
-    
-    # error checking - verify input types
-#    if (laser.channel is not filtercube.channel):
-#        return "error", "error", "error"  # throw more informative error...
-    
-    dye_label = dye.name
-    channel_label = laser.channel
+def signalFromDyeXInChannelY(source, filtercube, dye, objective, camera):    
     
     # interpolate spectra to 0.5 nm resolution so that all spectra can be easily overlapped
     dlambda = 0.5
-    lsr = utils.interpolateSpectrum(laser.laserProfile, dlambda)
+    dye_label = dye.name
+    if isinstance(source, BroadbandSource):
+        channel_label = source.name
+        lsr = utils.interpolateSpectrum(source.spectrum, dlambda)
+    else:
+        channel_label = source.channel
+        lsr = utils.interpolateSpectrum(source.laserProfile, dlambda)
+
     exFilt = utils.interpolateSpectrum(filtercube.excitationFilter.getSpectrum(), dlambda)
     emFilt = utils.interpolateSpectrum(filtercube.emissionFilter.getSpectrum(), dlambda)
     diFilt = utils.interpolateSpectrum(filtercube.dichroicFilter.getSpectrum(), dlambda)
@@ -167,6 +168,7 @@ dyesPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Dye spec
 filtersPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Filter spectra')
 opticsPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Optics spectra')
 cameraPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Camera spectra')
+sourcesPath = 'Source spectra/'
 #
 #
 ## seems a bit boilerplate-y? Work into a loop somehow?
@@ -217,6 +219,10 @@ l633 = Laser(channel = 'L633Nm', centreWavelengthNm = 640, fwhmNm = 0.01,
           
 l700 = Laser(channel = 'L700Nm', centreWavelengthNm = 701, fwhmNm = 0.01, 
              laserOutputPowerMw = 30)
+             
+bb = BroadbandSource(name='Thorlabs HPLS343, 3mm LLG',  
+                      integratedPowermW=4000.0, 
+                      spectrum=os.path.join(sourcesPath, 'Thorlabs Plasma Source.txt'))
              
 fc405 = FilterCube(channel = 'L405Nm', 
                    excitationFilter = ( 'FF01-390_40', os.path.join(filtersPath, 'FF01-390_40_Spectrum.txt') ), 
@@ -285,6 +291,33 @@ fc700multi = FilterCube(channel = 'L700Nm',
 camera = Camera(name = 'Andor Zyla 5.5', qeCurve = 1)
 
 objective = Objective(name = 'Olympus UPLANSAPO20x 0.75NA', transmissionCurve = 1)
+
+#ratios = []
+#ch_labels = []
+#
+#laser_list = [l405, l532, l594, l633, l700]
+#fc_list = [fc405, fc532, fc594, fc633, fc700new]
+#dye_list = [dye405, dye532, dye594, dye633, dye700]
+#source_list = [bb, bb, bb, bb, bb]
+#
+#for l, bbb, fc, dy in zip(laser_list, source_list, fc_list, dye_list):
+#    d, ch, sig_new = signalFromDyeXInChannelY(bbb, fc, dy, objective, camera)
+#    print(ch)
+#    print('broadband signal = {:0.3f}'.format(sig_new))
+#    d, ch, sig_old = signalFromDyeXInChannelY(l, fc, dy, objective, camera)
+#    print('laser signal = {:0.3f}'.format(sig_old))
+#    
+#    ratios.append(sig_new/sig_old)
+#    ch_labels.append(ch)
+#    
+#fig3 = plt.figure();
+#plt.bar([1, 2, 3, 4, 5], 
+#        ratios, 
+#        tick_label=ch_labels, 
+#        align='center')
+#plt.ylabel('Fractional signal')
+#plt.show()
+
                            
 #
 #d, ch, sig = signalFromDyeXInChannelY(l700, fc700old, dye700)
