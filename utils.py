@@ -117,4 +117,19 @@ def normaliseSpectrum(spectrum):
     spectrum[:,1] = spectrum[:,1] / m;
     return spectrum;
     
+def padWithZeros(spectrum, min_lambda, max_lambda):
+    """ Pad spectra with zeros for undefined values between min and max """
+    
+    dl = np.diff(spectrum[:,0])[0]
+    # TODO: check and throw error if dl isn't constant throughout spectrum
+    min_included_l = min(spectrum[:,0])
+    max_included_l = max(spectrum[:,0])
+    l_low = np.linspace(min_lambda, (min_included_l - dl), int(((min_included_l - dl) - min_lambda)/dl + 1)).T
+    l_high = np.linspace((max_included_l + dl), max_lambda, int((max_lambda - (max_included_l + dl))/dl + 1)).T
+    pad_spectrum = np.concatenate([np.stack([l_low, np.zeros_like(l_low)], axis=1), 
+                             spectrum, 
+                             np.stack([l_high, np.zeros_like(l_high)], axis=1)])
+                             
+    return pad_spectrum 
+    
     
