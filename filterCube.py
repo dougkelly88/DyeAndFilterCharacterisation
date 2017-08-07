@@ -37,15 +37,24 @@ class FilterCube(object):
         
         
     def setExcitationFilter(self, exFilt):
-        self.excitationFilter = InterferenceFilter(exFilt[0], exFilt[1])
+        if isinstance(exFilt, InterferenceFilter):
+            self.excitationFilter = exFilt
+        else:
+            self.excitationFilter = InterferenceFilter(exFilt[0], exFilt[1])
         
         
-    def setEmissionFilter(self, emFilt):       
-        self.emissionFilter = InterferenceFilter(emFilt[0], emFilt[1])
+    def setEmissionFilter(self, emFilt): 
+        if isinstance(emFilt, InterferenceFilter):
+            self.emissionFilter = emFilt
+        else:
+            self.emissionFilter = InterferenceFilter(emFilt[0], emFilt[1])
         
         
     def setDichroicFilter(self, diFilt):   
-        self.dichroicFilter = InterferenceFilter(diFilt[0], diFilt[1])
+        if isinstance(diFilt, InterferenceFilter):
+            self.dichroicFilter = diFilt
+        else:
+            self.dichroicFilter = InterferenceFilter(diFilt[0], diFilt[1])
         
         
     def setChannel(self, channel):

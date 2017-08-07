@@ -132,4 +132,3 @@ def padWithZeros(spectrum, min_lambda, max_lambda):
                              
     return pad_spectrum 
     
-    
