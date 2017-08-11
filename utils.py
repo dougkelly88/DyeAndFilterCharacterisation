@@ -77,11 +77,12 @@ def integrateSpectra(spectra, dlambda):
     dlambda = wavelength difference betweeen adjacent values in the spectra
     """
 
-    lowerLimit = max( [min(spectrum[:,0]) for spectrum in spectra] )
-    upperLimit = min( [max(spectrum[:,0]) for spectrum in spectra] )
+    lowerLimit = min( [min(spectrum[:,0]) for spectrum in spectra] )
+    upperLimit = max( [max(spectrum[:,0]) for spectrum in spectra] )
 
     
-    trimmedSpectra = [spectrum[(spectrum[:,0] >= lowerLimit) & (spectrum[:,0] <= upperLimit)] for spectrum in spectra]
+    #trimmedSpectra = [spectrum[(spectrum[:,0] >= lowerLimit) & (spectrum[:,0] <= upperLimit)] for spectrum in spectra]
+    trimmedSpectra = [padWithZeros(spectrum, lowerLimit, upperLimit) for spectrum in spectra]
 #    for spectrum in trimmedSpectra:
 #        plt.plot(spectrum[:,0], spectrum[:,1])
 #    plt.title('Spectra for integration')
