@@ -75,7 +75,7 @@ def signalFromDyeXInChannelY(source, filtercube, dye, objective, camera):
     
     return dye_label, channel_label, signal
 
-def displayCrosstalkPlot(lsrList, filtercubeList, dyeList, objective, camera):
+def displayCrosstalkPlot(lsrList, filtercubeList, dyeList, objective, camera, log_colour=True, title='Crosstalk'):
     """ display a heatmap showing the log10 of crosstalk contribution from each fluorescent species to total signal in each detection channel"""
 
     signals = []
@@ -98,11 +98,17 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList, objective, camera):
 #    plt.rc('text', usetex=True)
     hfig = plt.figure();
     plt.rc('font', family='serif')
-    plt.imshow(np.log10(crosstalkMatrix), cmap = 'Reds', interpolation='none')
+    if log_colour:
+        plt.imshow(np.log10(crosstalkMatrix), cmap = 'Reds', interpolation='none')
+        clbl = 'log_10 of crosstalk as fraction of signal'
+    else:
+        plt.imshow(crosstalkMatrix, cmap = 'Reds', interpolation='none')
+        clbl = 'crosstalk as fraction of signal'
+    plt.title(title)
     hax = hfig.gca()
     hcbar = plt.colorbar()
     hcbar.ax.get_yaxis().labelpad = 15    
-    hcbar.ax.set_ylabel('log_10 of crosstalk as fraction of signal', rotation=90)
+    hcbar.ax.set_ylabel(clbl, rotation=90)
     hax.set_xlabel('Detection channel')
     hax.set_ylabel('Dye contributing to signal')
     ch_labels.insert(0, '')   # hacky solution...
