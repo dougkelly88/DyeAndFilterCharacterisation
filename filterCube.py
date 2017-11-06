@@ -16,15 +16,16 @@ class FilterCube(object):
     dichroicFilter = (name, spectrum) tuple defining the dichroic filter. Spectrum may be a Nx2 array or a path to the filter spectrum. 
     emissionFilter = (name, spectrum) tuple defining the emission filter. Spectrum may be a Nx2 array or a path to the filter spectrum. 
     channel = string desctbing the imaging channel corresponding to this cube in format "L<wavelength>Nm" for compatibility with instrument control. 
-    """
-    
-    excitationFilter = InterferenceFilter()
-    dichroicFilter = InterferenceFilter()
-    emissionFilter = InterferenceFilter()
-    channel = 'Lxxxnm'    
+    """     
     
     def __init__(self, channel = None, excitationFilter = None, 
                  dichroicFilter = None, emissionFilter = None):
+                     
+        self.excitationFilter = InterferenceFilter()
+        self.dichroicFilter = InterferenceFilter()
+        self.emissionFilter = InterferenceFilter()
+        self.channel = 'Lxxxnm'   
+    
         if excitationFilter is not None:
             self.setExcitationFilter(excitationFilter)
         if dichroicFilter is not None:

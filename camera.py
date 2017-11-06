@@ -10,11 +10,12 @@ import utils
 
 class Camera(object):
     """A class describinig a camera or other detector"""
-    
-    name = 'AndorZyla5.5'
-    qeCurve = utils.makeGaussian(0.8, 555, 100)
-    
+
     def __init__(self, name = None, qeCurve = None):
+        
+        self.name = 'AndorZyla5.5'
+        self.qeCurve = utils.makeGaussian(0.8, 555, 100)
+    
         if name is not None:
             self.name = name
         if qeCurve is not None:

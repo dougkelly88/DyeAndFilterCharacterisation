@@ -19,15 +19,16 @@ class Laser(object):
     laserOutputPowerMw = measured output power after laser - for now, also after 
     laserProfile = wavelength profile of the laser"""
     
-    channel = 'L000nm'
-    centreWavelengthNm = 532
-    fwhmNm = 3
-    laserOutputPowerMw = 10
-    laserProfile = utils.makeGaussian(laserOutputPowerMw, centreWavelengthNm, 
-                                      fwhmNm / (2 * np.sqrt(2 * np.log(2))))
-    
     def __init__(self, channel = None, centreWavelengthNm = None, fwhmNm = None, 
                  laserOutputPowerMw = None, laserProfile = None):
+        
+        self.channel = 'L000nm'
+        self.centreWavelengthNm = 532
+        self.fwhmNm = 3
+        self.laserOutputPowerMw = 10
+        self.laserProfile = utils.makeGaussian(laserOutputPowerMw, centreWavelengthNm, 
+                                          fwhmNm / (2 * np.sqrt(2 * np.log(2))))        
+        
         if channel is not None:
              self.channel = channel
         if centreWavelengthNm is not None:
