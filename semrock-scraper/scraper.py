@@ -9,9 +9,9 @@ import scrapy
 
 class SemrockSpider(scrapy.Spider):
     name="semrock_spider"
-    max_filters = 20
+    filters_per_page = 20
     #start_urls=['https://www.semrock.com/filters.aspx']
-    start_urls=['https://www.semrock.com/filtersRefined.aspx?page=1&minWL=0&maxWL=2000&so=0&recs='+str(max_filters)]
+    start_urls=['https://www.semrock.com/filtersRefined.aspx?page=1&minWL=0&maxWL=2000&so=0&recs='+str(filters_per_page)]
     
     def parse(self, response):
         FILTER_SELECTOR='.partResultsItem'
