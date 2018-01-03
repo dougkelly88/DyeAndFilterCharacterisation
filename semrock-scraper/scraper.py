@@ -6,6 +6,7 @@ Created on Wed Jan  3 12:18:56 2018
 """
 
 import scrapy
+from scrapy.http import Request
 
 class SemrockSpider(scrapy.Spider):
     name="semrock_spider"
@@ -17,16 +18,28 @@ class SemrockSpider(scrapy.Spider):
         FILTER_SELECTOR='.partResultsItem'
         for filt in response.css(FILTER_SELECTOR):
             PART_SELECTOR = 'h1 a ::text'
-            LINK_SELECTOR = 'h1 a ::attr(href)'
-            yield{
-                'name': filt.css(PART_SELECTOR).extract_first().strip(), 
-                'link': filt.css(LINK_SELECTOR).extract_first().strip()
-            } 
-            
-        NEXT_PAGE_SELECTOR = '.paging_link a ::attr(href)'
-        next_page = response.css(NEXT_PAGE_SELECTOR).extract()[-1]
-        if next_page:
-            yield scrapy.Request(
-                response.urljoin(next_page),
-                callback=self.parse
+            pn = filt.css(PART_SELECTOR).extract_first().strip()
+            self.logger.info('PN = %s', pn)
+            old_url='https://www.semrock.com/_ProductData/Spectra/' + pn.replace('/', '_')
+            dummy = old_url.rsplit('-', 1)
+            new_url = dummy[0] + '_Spectrum.txt'
+
+            yield Request(
+                url = new_url, 
+                callback=self.save_txt
             )
+            
+#        NEXT_PAGE_SELECTOR = '.paging_link a ::attr(href)'
+#        next_page = response.css(NEXT_PAGE_SELECTOR).extract()[-1]
+#        if next_page:
+#            yield scrapy.Request(
+#                response.urljoin(next_page),
+#                callback=self.parse
+#            )
+            
+    def save_txt(self, response):
+        path = response.url.split('/')[-1]
+        self.logger.info('Saving txt %s', path)
+        with open(path, 'wb') as f:
+            f.write(response.body)
+    
