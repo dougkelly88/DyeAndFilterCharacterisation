@@ -13,10 +13,11 @@ class Objective(object):
     
     """THIS MODEL IGNORES ANY ANGLE DEPENDENT CHANGES TO TRANSMISSION SPECTRUM"""
     
-    name = 'UPLSAPO20x'
-    transmissionCurve = utils.makeGaussian(0.8, 555, 100)
-    
     def __init__(self, name = None, transmissionCurve = None):
+        
+        self.name = 'UPLSAPO20x'
+        self.transmissionCurve = utils.makeGaussian(0.8, 555, 100)
+    
         if name is not None:
             self.name = name
         if transmissionCurve is not None:

@@ -20,14 +20,15 @@ class Dye(object):
     absorptionSpectrum: Nx2 array with wavelength in first column and absorption in the second. If a filename is passed, then absorption spectrum is read from this file. 
     emissionSpectrum: Nx2 array with wavelength in first column and emission in the second. If a filename is passed, then emission spectrum is read from this file. 
     """
-    QY = 1
-    epsilon = 120000
-    absorptionSpectrum = utils.makeGaussian(1, 700, 5)
-    emissionSpectrum = utils.makeGaussian(1, 720, 5)
-    name = 'dummy700'
-
 
     def __init__(self, name = None, epsilon = None, qy = None, absSpectrum = None, emSpectrum = None):
+        
+        self.QY = 1
+        self.epsilon = 120000
+        self.absorptionSpectrum = utils.makeGaussian(1, 700, 5)
+        self.emissionSpectrum = utils.makeGaussian(1, 720, 5)
+        self.name = 'dummy700'
+        
         if epsilon is not None:
             self.epsilon = epsilon
         if qy is not None:

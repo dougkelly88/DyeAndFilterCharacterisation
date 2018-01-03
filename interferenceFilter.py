@@ -24,6 +24,11 @@ class InterferenceFilter(object):
                                      [1 * (x>50) for x in range(100)]]).T
     
     def __init__(self, name = None, spectrum = None):
+
+        self.name = 'FF01-000/00'
+        self.transmissionSpectrum = np.array([[x+500 for x in range(100)], 
+                                     [1 * (x>50) for x in range(100)]]).T
+                                     
         if name is not None:
             self.name = name
         if spectrum is not None:
