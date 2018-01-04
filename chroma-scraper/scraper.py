@@ -38,6 +38,15 @@ class ChromaSpider(scrapy.Spider):
                     'name': row.xpath(FILTER_NAME_SELECTOR).extract(), 
                     'link': row.xpath(DETAILS_LINK_SELECTOR).extract()
                     }
+            
+        NEXT_PAGE_SELECTOR = '//*[@id="pager-next-footer"]/a/@href'
+        next_page = response.xpath(NEXT_PAGE_SELECTOR).extract_first()
+        if next_page:
+            yield scrapy.Request(
+                response.urljoin(next_page),
+                callback=self.parse
+            )
+
         
     
     def parse_details(self, response):
