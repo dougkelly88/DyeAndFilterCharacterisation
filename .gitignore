@@ -1,1 +1,6 @@
 *.pyc
+*.txt
+semrock_scraper/Dichroic/
+semrock_scraper/Filter/
+semrock_scraper/Long pass/
+semrock_scraper/Short pass/

@@ -12,10 +12,11 @@ from scrapy.http import Request
 from scrapy.xlib.pydispatch import dispatcher
 from scrapy import signals
 from scrapy.spidermiddlewares.httperror import HttpError
+import os
 
 class SemrockSpider(scrapy.Spider):
     name="semrock_spider"
-    filters_per_page = 50
+    filters_per_page = 20
     #start_urls=['https://www.semrock.com/filters.aspx']
     start_urls=['https://www.semrock.com/filtersRefined.aspx?page=1&minWL=0&maxWL=2000&so=0&recs='+str(filters_per_page)]
     
@@ -23,6 +24,10 @@ class SemrockSpider(scrapy.Spider):
         self.failed_filters = []
         self.pn = ''
         dispatcher.connect(self.handle_spider_closed, signals.spider_closed)
+        os.mkdir('Dichroic')
+        os.mkdir('Long pass')
+        os.mkdir('Short pass')
+        os.mkdir('Filter')
         
     
     def parse(self, response):
@@ -41,17 +46,25 @@ class SemrockSpider(scrapy.Spider):
                 errback=self.handle_errs
             )
             
-#        NEXT_PAGE_SELECTOR = '.paging_link a ::attr(href)'
-#        next_page = response.css(NEXT_PAGE_SELECTOR).extract()[-1]
-#        if next_page:
-#            yield scrapy.Request(
-#                response.urljoin(next_page),
-#                callback=self.parse
-#            )
+        NEXT_PAGE_SELECTOR = '.paging_link a ::attr(href)'
+        next_page = response.css(NEXT_PAGE_SELECTOR).extract()[-1]
+        if next_page:
+            yield scrapy.Request(
+                response.urljoin(next_page),
+                callback=self.parse
+            )
             
     def save_txt(self, response):
                
         path = response.url.split('/')[-1]
+        if (path[0:2]) == 'Di':
+            path = os.path.join('Dichroic', path)
+        elif (path[0:2]) == 'LP':
+            path = os.path.join('Long pass', path)
+        elif (path[0:2] == 'SP'):
+            path = os.path.join('Short pass', path)
+        else:
+            path = os.path.join('Filter', path)
         
         self.logger.info('Saving txt %s', path)
         with open(path, 'wb') as f:
@@ -67,9 +80,6 @@ class SemrockSpider(scrapy.Spider):
     def handle_errs(self, failure):
         # log all failures
         self.logger.error(repr(failure))
-
-        # in case you want to do something special for some errors,
-        # you may need the failure's type:
 
         if failure.check(HttpError):
             # these exceptions come from HttpError spider middleware
