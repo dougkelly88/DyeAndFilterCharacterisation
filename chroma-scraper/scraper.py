@@ -17,8 +17,7 @@ import os
 class ChromaSpider(scrapy.Spider):
     name="chroma_spider"
     filters_per_page = 20
-    #start_urls=['https://www.semrock.com/filters.aspx']
-    start_urls=['https://www.chroma.com/products/custom-inventory/nc462712-t365lpxt']
+    start_urls=['https://www.chroma.com/products/single-bandpass-and-single-edge-filters']
     
 #    def __init__(self, category=None):
 #        self.failed_filters = []
@@ -31,6 +30,17 @@ class ChromaSpider(scrapy.Spider):
         
     
     def parse(self, response):
+        FILTER_ROW_SELECTOR = '.pvm'
+        for row in response.css(FILTER_ROW_SELECTOR):
+            FILTER_NAME_SELECTOR = './/h2/a/text()'
+            DETAILS_LINK_SELECTOR = './/h2/a/@href'
+            yield{
+                    'name': row.xpath(FILTER_NAME_SELECTOR).extract(), 
+                    'link': row.xpath(DETAILS_LINK_SELECTOR).extract()
+                    }
+        
+    
+    def parse_details(self, response):
         DATA_LINK_SELECTOR = '//*[@id="tabs-detail_page_plot-left"]/div/div[1]/div/div/div/div/div[2]/div/table/tbody/tr/td[6]/span/a/@href'
         NAME_SELECTOR = 'body > div.wrapper > div > div.layout > div.body.clearfix > div > div.content > div > div > div > div.content-top > div > div > div > div > div.layout-plot-region.layout-plot-top > h2 > a ::text'
         yield {
@@ -38,13 +48,6 @@ class ChromaSpider(scrapy.Spider):
             'lnk': response.xpath(DATA_LINK_SELECTOR).extract_first()
             }
             
-#        NEXT_PAGE_SELECTOR = '.paging_link a ::attr(href)'
-#        next_page = response.css(NEXT_PAGE_SELECTOR).extract()[-1]
-#        if next_page:
-#            yield scrapy.Request(
-#                response.urljoin(next_page),
-#                callback=self.parse
-#            )
             
 #    def save_txt(self, response):
 #               
