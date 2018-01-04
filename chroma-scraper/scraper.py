@@ -17,7 +17,8 @@ import os
 class ChromaSpider(scrapy.Spider):
     name="chroma_spider"
     filters_per_page = 20
-    start_urls=['https://www.chroma.com/products/single-bandpass-and-single-edge-filters']
+    start_urls=['https://www.chroma.com/products/single-bandpass-and-single-edge-filters', 
+                'https://www.chroma.com/products/multi-bandpass-and-multi-dichroic-filters']
     
 #    def __init__(self, category=None):
 #        self.failed_filters = []
