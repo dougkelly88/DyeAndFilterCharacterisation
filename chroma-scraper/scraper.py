@@ -16,14 +16,16 @@ import os
 
 class ChromaSpider(scrapy.Spider):
     name="chroma_spider"
-    filters_per_page = 20
-    start_urls=['https://www.chroma.com/products/single-bandpass-and-single-edge-filters', 
-                'https://www.chroma.com/products/multi-bandpass-and-multi-dichroic-filters']
+    start_urls=['https://www.chroma.com/products/single-bandpass-and-single-edge-filters']
+#    , 
+#                'https://www.chroma.com/products/multi-bandpass-and-multi-dichroic-filters']
     
-#    def __init__(self, category=None):
+    def __init__(self, category=None):
+        self.failures = 0;
+        self.successes = 0;
 #        self.failed_filters = []
 #        self.pn = ''
-#        dispatcher.connect(self.handle_spider_closed, signals.spider_closed)
+        dispatcher.connect(self.handle_spider_closed, signals.spider_closed)
 #        os.mkdir('Dichroic')
 #        os.mkdir('Long pass')
 #        os.mkdir('Short pass')
@@ -35,28 +37,38 @@ class ChromaSpider(scrapy.Spider):
         for row in response.css(FILTER_ROW_SELECTOR):
             FILTER_NAME_SELECTOR = './/h2/a/text()'
             DETAILS_LINK_SELECTOR = './/h2/a/@href'
-            yield{
-                    'name': row.xpath(FILTER_NAME_SELECTOR).extract(), 
-                    'link': row.xpath(DETAILS_LINK_SELECTOR).extract()
-                    }
-            
-        NEXT_PAGE_SELECTOR = '//*[@id="pager-next-footer"]/a/@href'
-        next_page = response.xpath(NEXT_PAGE_SELECTOR).extract_first()
-        if next_page:
-            yield scrapy.Request(
-                response.urljoin(next_page),
-                callback=self.parse
+            self.logger.info('Filter found: %s', row.xpath(FILTER_NAME_SELECTOR).extract_first())
+            lnk = (row.xpath(DETAILS_LINK_SELECTOR).extract_first())
+            yield Request(
+                url=lnk, 
+                callback=self.parse_details
             )
+            
+#        NEXT_PAGE_SELECTOR = '//*[@id="pager-next-footer"]/a/@href'
+#        next_page = response.xpath(NEXT_PAGE_SELECTOR).extract_first()
+#        if next_page:
+#            yield scrapy.Request(
+#                response.urljoin(next_page),
+#                callback=self.parse
+#            )
 
         
     
     def parse_details(self, response):
         DATA_LINK_SELECTOR = '//*[@id="tabs-detail_page_plot-left"]/div/div[1]/div/div/div/div/div[2]/div/table/tbody/tr/td[6]/span/a/@href'
+        DATA_LINK_SELECTOR_TYPE_2 = '//*[@id="tabs-detail_page_plot-left"]/div/div[1]/div/div/div/div/div[2]/div/table/tbody/tr/td[7]/span/a/@href'
         NAME_SELECTOR = 'body > div.wrapper > div > div.layout > div.body.clearfix > div > div.content > div > div > div > div.content-top > div > div > div > div > div.layout-plot-region.layout-plot-top > h2 > a ::text'
-        yield {
-            'filt name': response.css(NAME_SELECTOR).extract_first().strip(), 
-            'lnk': response.xpath(DATA_LINK_SELECTOR).extract_first()
-            }
+        lnk = response.xpath(DATA_LINK_SELECTOR).extract_first()
+        if lnk is None:
+            lnk = response.xpath(DATA_LINK_SELECTOR_TYPE_2).extract_first()
+        if lnk is None:
+            self.failures += 1
+            yield {
+                'filt name': response.css(NAME_SELECTOR).extract_first().strip(), 
+                'lnk': response.xpath(DATA_LINK_SELECTOR).extract_first()
+                }
+        else:
+            self.successes +=1
             
             
 #    def save_txt(self, response):
@@ -77,10 +89,11 @@ class ChromaSpider(scrapy.Spider):
             
     def handle_spider_closed(self, spider):
         self.logger.info('FINISHED!')
-        self.logger.info('There were %d failed filters', len(self.failed_filters))
-        self.logger.info('Failed at %s', ', '.join(self.failed_filters))
-        with open('failures.csv', 'w') as f:
-            f.write('\n'.join(self.failed_filters))
+        self.logger.info('There were %d failed filters', (self.failures))
+        self.logger.info('There were %d successful filters', (self.successes))
+#        self.logger.info('Failed at %s', ', '.join(self.failed_filters))
+#        with open('failures.csv', 'w') as f:
+#            f.write('\n'.join(self.failed_filters))
         
     def handle_errs(self, failure):
         # log all failures
