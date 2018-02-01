@@ -16,19 +16,16 @@ import os
 
 class ChromaSpider(scrapy.Spider):
     name="chroma_spider"
-    start_urls=['https://www.chroma.com/products/single-bandpass-and-single-edge-filters']
-#    , 
-#                'https://www.chroma.com/products/multi-bandpass-and-multi-dichroic-filters']
+    start_urls=['https://www.chroma.com/products/single-bandpass-and-single-edge-filters', 
+                'https://www.chroma.com/products/multi-bandpass-and-multi-dichroic-filters']
     
     def __init__(self, category=None):
         self.failures = 0;
         self.successes = 0;
         self.failed_filters = []
-#        self.pn = ''
         dispatcher.connect(self.handle_spider_closed, signals.spider_closed)
-#        os.mkdir('Dichroic')
-#        os.mkdir('Long pass')
-#        os.mkdir('Short pass')
+        if not os.path.isdir('Dichroic'):
+            os.mkdir('Dichroic')
         if not os.path.isdir('Filter'):
             os.mkdir('Filter')
         
@@ -45,14 +42,14 @@ class ChromaSpider(scrapy.Spider):
                 callback=self.parse_details
             )
             
-#        NEXT_PAGE_SELECTOR = '//*[@id="pager-next-footer"]/a/@href'
-#        next_page = response.xpath(NEXT_PAGE_SELECTOR).extract_first()
-#        if next_page:
-#            yield scrapy.Request(
-#                response.urljoin(next_page),
-#                callback=self.parse
-#            )
-
+        NEXT_PAGE_SELECTOR = '//*[@id="pager-next-footer"]/a/@href'
+        next_page = response.xpath(NEXT_PAGE_SELECTOR).extract_first()
+        if next_page:
+            yield scrapy.Request(
+                response.urljoin(next_page),
+                callback=self.parse
+            )
+#
         
     
     def parse_details(self, response):
@@ -61,11 +58,14 @@ class ChromaSpider(scrapy.Spider):
         NAME_SELECTOR = 'body > div.wrapper > div > div.layout > div.body.clearfix > div > div.content > div > div > div > div.content-top > div > div > div > div > div.layout-plot-region.layout-plot-top > h2 > a ::text'
         nm = response.css(NAME_SELECTOR).extract_first().strip()
         lnk = response.xpath(DATA_LINK_SELECTOR).extract_first()
+        self.logger.info('NAME: %s\n', nm)
+
         if lnk is None:
             lnk = response.xpath(DATA_LINK_SELECTOR_TYPE_2).extract_first()
         if lnk is None:
             self.failures += 1
             self.failed_filters.append(nm)
+        
         else:
             self.successes +=1
             request = Request(url=lnk, callback=self.save_txt)
@@ -73,17 +73,13 @@ class ChromaSpider(scrapy.Spider):
             yield request
             
     def save_txt(self, response):
-               
-        path = os.path.join('Filter', response.meta['name'].replace('/', '_'))
-#        if (path[0:2]) == 'Di':
-#            path = os.path.join('Dichroic', path)
-#        elif (path[0:2]) == 'LP':
-#            path = os.path.join('Long pass', path)
-#        elif (path[0:2] == 'SP'):
-#            path = os.path.join('Short pass', path)
-#        else:
-#            path = os.path.join('Filter', path)
-#        
+             
+        path =  response.meta['name'].replace('/', '_')+'.txt'
+        if 'dc' in path:
+            path = os.path.join('Dichroic', path)
+        else:
+            path = os.path.join('Filter', path)
+        
         self.logger.info('Saving txt %s', path)
         with open(path, 'wb') as f:
             f.write(response.body)
@@ -93,8 +89,8 @@ class ChromaSpider(scrapy.Spider):
         self.logger.info('There were %d failed filters', len(self.failed_filters))
         self.logger.info('There were %d successful filters', (self.successes))
         self.logger.info('Failed at %s', ', '.join(self.failed_filters))
-#        with open('failures.csv', 'w') as f:
-#            f.write('\n'.join(self.failed_filters))
+        with open('failures.csv', 'w') as f:
+            f.write('\n'.join(self.failed_filters))
         
     def handle_errs(self, failure):
         # log all failures
