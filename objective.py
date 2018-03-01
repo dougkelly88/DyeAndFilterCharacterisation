@@ -34,7 +34,8 @@ class Objective(object):
                     print('Error - wrong shape of spectrum array!')
                     # throw error - wrong shape of spectrum array!
         elif isinstance(transmissionCurve, str):
-            self.transmissionCurve = utils.readSpectrumFile(transmissionCurve)
+            self.transmissionCurve = utils.normaliseSpectrum(utils.readSpectrumFile(transmissionCurve))
+            
             
         elif transmissionCurve == 1:
             """ for non-lossy objective, transmissionCurve argument can be passed as 1 """
