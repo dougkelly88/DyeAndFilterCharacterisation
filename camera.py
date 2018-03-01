@@ -11,15 +11,23 @@ import utils
 class Camera(object):
     """A class describinig a camera or other detector"""
 
-    def __init__(self, name = None, qeCurve = None):
+    def __init__(self, name = None, qeCurve = None, sensorSizeXYMm = None, 
+                 sensorSizeXYPix = None):
         
         self.name = 'AndorZyla5.5'
         self.qeCurve = utils.makeGaussian(0.8, 555, 100)
-    
+        self.sensorSizeXYMm = (16.6, 14.0)
+        self.sensorAreaM2 = 2.32E-4
+        self.sensorSizeXYPix = (2560, 2160)
+
         if name is not None:
             self.name = name
         if qeCurve is not None:
             self.setQECurve(qeCurve)
+        if sensorSizeXYMm is not None:
+            self.sensorSizeXYMm = self.setSensorSize(sensorSizeXYMm)
+        if sensorSizeXYPix is not None:
+            self.sensorSizeXYPix = sensorSizeXYPix
             
     def displayQECurve(self):
         utils.displaySpectra([self.qeCurve])
@@ -42,4 +50,10 @@ class Camera(object):
             l = np.linspace(mn, mx, round(mx-mn)/dl + 1)
             t = np.ones(round((mx-mn)/dl + 1))
             self.qeCurve = np.vstack((l,t)).T
+            
+    def setSensorSize(self, sensorSizeXYMm):
+        """ take tuple containing sensor dimensions in mm (X,Y) and set size """
+        self.sensorSizeXYMm = sensorSizeXYMm
+        self.sensorAreaM2 = (sensorSizeXYMm[0] * sensorSizeXYMm[1] * 1E-6) 
+        
             
