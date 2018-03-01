@@ -53,10 +53,6 @@ def signalFromDyeXInChannelY(source, filtercube, dye, objective, camera):
     diFiltIn[:,1] = 1 - diFilt[:,1]
     absSpectrum[:,1] = absSpectrum[:,1] / max(absSpectrum[:,1]) 
     
-    # debug    
-#    plt.plot(diFilt[:,0], diFilt[:,1], diFiltIn[:,0], diFiltIn[:,1])
-#    plt.show()
-#    
     # normalise dye emission
     emSpectrum[:,1] = emSpectrum[:,1] / max(emSpectrum[:,1])
     
@@ -67,9 +63,7 @@ def signalFromDyeXInChannelY(source, filtercube, dye, objective, camera):
         
     # integrate spectra and multiply by absorption coeff and QY respectively
     exTerm = utils.integrateSpectra(exSpectraList, dlambda) * dye.epsilon
-#    print('exTerm = {:0.3f}'.format(exTerm))
     emTerm = utils.integrateSpectra(emSpectraList, dlambda) * dye.QY
-#    print('emTerm = {:0.3f}'.format(emTerm))
 
     signal = exTerm * emTerm
     
@@ -135,40 +129,58 @@ def displayCrosstalkPlot(lsrList, filtercubeList, dyeList, objective, camera, lo
     plt.show()
     
     return crosstalkMatrix
+         
+
+def showDyeEmissionEnclosedByFilters(dye, filtercube, objective, camera, title='dummy title'):
+    """Given dye and filtercube, give visual indication of overlap"""
     
+    dlambda = 0.5
+    dem = utils.interpolateSpectrum(dye.emissionSpectrum, dlambda)
+    fem = utils.interpolateSpectrum(filtercube.emissionFilter.getSpectrum(), dlambda)
+    fdiem = utils.interpolateSpectrum(filtercube.dichroicFilter.getSpectrum(), dlambda)
+    spectra = [dem, fem, fdiem]
+    
+    lowerLimit = max( [min(spectrum[:,0]) for spectrum in spectra] )
+    upperLimit = min( [max(spectrum[:,0]) for spectrum in spectra] )
+    
+    trimmedSpectra = [spectrum[(spectrum[:,0] >= lowerLimit) & (spectrum[:,0] <= upperLimit)] for spectrum in spectra]
 
-#def show_dye_emission_enclosed_by_filters(dye, filtercube, objective, camera):
-#    """Given dye and filtercube, give visual indication of overlap"""
-#    
-#    dem = utils.interpolateSpectrum(dye.emissionSpectrum, 0.5)
-#    fem = utils.interpolateSpectrum(filtercube.emissionFilter.getSpectrum(), 0.5)
-#    fdiem = utils.interpolateSpectrum(filtercube.dichroicFilter.getSpectrum(), 0.5)
-#    spectra = [dem, fem, fdiem]
-#    
-#    lowerLimit = max( [min(spectrum[:,0]) for spectrum in spectra] )
-#    upperLimit = min( [max(spectrum[:,0]) for spectrum in spectra] )
-#    
-#    trimmedSpectra = [spectrum[(spectrum[:,0] >= lowerLimit) & (spectrum[:,0] <= upperLimit)] for spectrum in spectra]
-##    for spectrum in trimmedSpectra:
-##        plt.plot(spectrum[:,0], spectrum[:,1])
-##    plt.title('Spectra for overlap')
-##    plt.show()
-#
-#    ovrlp = np.ones((trimmedSpectra[0][:,1].shape))
-#    
-#    for spectrum in trimmedSpectra:
-#        ovrlp = np.multiply(ovrlp, spectrum[:,1])
-#    
-##    print(ovrlp)
-#    
-#    hfig = plt.figure()
-#    plt.title(filtercube.channel)
-#    utils.displaySpectra(trimmedSpectra)
-#    plt.fill_between(trimmedSpectra[0][:,0], ovrlp)
-#        
-#    return np.sum(ovrlp)*0.5, ovrlp
-#          
+    ovrlp = np.ones((trimmedSpectra[0][:,1].shape))
+    
+    for spectrum in trimmedSpectra:
+        ovrlp = np.multiply(ovrlp, spectrum[:,1])
+    
+    hfig = plt.figure()
+    plt.title(filtercube.channel + ' ' + title)
+    plt.ylabel('Transmission (or normalised emission)')
+    plt.xlabel('Wavelength, nm')
+    utils.displaySpectra(trimmedSpectra)
+    plt.fill_between(trimmedSpectra[0][:,0], ovrlp)
+    plt.legend(['Dye emission', 'Emission filter', 'Dichroic filter'], loc='upper right')
+        
+    return np.sum(ovrlp)*dlambda
 
+def calcLeakage(source, filtercube, obj):
+    """Given a set of filters in a cube and a source spectrum, how excitation light is detected by the camera? """
+    
+    dl = 0.5
+    if isinstance(source, BroadbandSource):
+        s = utils.interpolateSpectrum(source.spectrum, dl)
+    else:
+        s = utils.interpolateSpectrum(source.laserProfile, dl)
+    ex = utils.interpolateSpectrum(filtercube.excitationFilter.getSpectrum(), dl)
+    di = utils.interpolateSpectrum(filtercube.dichroicFilter.getSpectrum(), dl)
+    em = utils.interpolateSpectrum(filtercube.emissionFilter.getSpectrum(), dl)
+    o = utils.interpolateSpectrum(obj.transmissionCurve, dl)
+    diIn = np.zeros_like(di)
+    diIn[:,0] = di[:,0]
+    diIn[:,1] = 1 - di[:,1]
+    
+    spList = [s, ex, diIn, o, o, di, em]
+    
+    leakage = utils.integrateSpectra(spList, dl)
+    
+    return leakage
 
 dyesPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Dye spectra')
 filtersPath = os.path.join((os.path.dirname(os.path.abspath(__file__)) ), 'Filter spectra')
@@ -296,7 +308,11 @@ fc700multi = FilterCube(channel = 'L700Nm',
                    
 camera = Camera(name = 'Andor Zyla 5.5', qeCurve = 1)
 
-objective = Objective(name = 'Olympus UPLANSAPO20x 0.75NA', transmissionCurve = 1)
+objective = Objective(name = 'Olympus UPLANSAPO20x 0.75NA', 
+                      transmissionCurve = os.path.join(opticsPath, 'Olympus UPLANSAPO20x.txt'))
+
+nobj = Objective(name = 'Nikon CFISuperFluor 0.5NA', 
+                      transmissionCurve = os.path.join(opticsPath, 'Nikon CFISuperFluor10x.txt'))
 
 #ratios = []
 #ch_labels = []
