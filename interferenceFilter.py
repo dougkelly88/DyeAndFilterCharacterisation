@@ -63,11 +63,8 @@ class InterferenceFilter(object):
         elif isinstance(spectrum, str):
             self.transmissionSpectrum = utils.readSpectrumFile(spectrum)
         elif type(spectrum) is list:
-            print('List of spectrum files!')
             lstSpectra = [utils.readSpectrumFile(fl) for fl in spectrum]
-            #interpSpectra = [utils.interpolateSpectrum(sp, dl) for sp in lstSpectra]
             self.transmissionSpectrum =  utils.multiplySpectra(lstSpectra)
-#            print(self.transmissionSpectrum.shape)
             
         if doubleStack:
             self.transmissionSpectrum[:,1] = (self.transmissionSpectrum[:,1]  * 
