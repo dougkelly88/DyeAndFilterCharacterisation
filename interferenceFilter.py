@@ -50,7 +50,7 @@ class InterferenceFilter(object):
     def getSpectrum(self):
         return self.transmissionSpectrum
         
-    def setTransmissionSpectrum(self, spectrum, doubleStack):
+    def setTransmissionSpectrum(self, spectrum, doubleStack=False):
         if isinstance(spectrum, np.ndarray):
                 if spectrum.shape[1] == 2:
                     self.transmissionSpectrum = spectrum

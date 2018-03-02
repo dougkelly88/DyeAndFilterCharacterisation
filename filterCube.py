@@ -20,38 +20,50 @@ class FilterCube(object):
     
     def __init__(self, channel = None, excitationFilter = None, 
                  dichroicFilter = None, emissionFilter = None, 
-                 doubleStackEmission = None):
+                 doubleStackEmission = None, 
+                 doubleStackExcitation = None):
                      
         self.excitationFilter = InterferenceFilter()
         self.dichroicFilter = InterferenceFilter()
         self.emissionFilter = InterferenceFilter()
         self.channel = 'Lxxxnm'   
         self.doubleStackEmission = False;
+        self.doubleStackExcitation = False;
     
         if excitationFilter is not None:
-            self.setExcitationFilter(excitationFilter)
+            if doubleStackExcitation is None:
+                self.setExcitationFilter(excitationFilter)
+            else:
+                self.setExcitationFilter(excitationFilter, 
+                                         doubleStack=doubleStackExcitation)
         if dichroicFilter is not None:
             self.setDichroicFilter(dichroicFilter)
         if emissionFilter is not None:
             if doubleStackEmission is None:
                 self.setEmissionFilter(emissionFilter)
             else:
-                self.setEmissionFilter(emissionFilter, doubleStackEmission)
+                self.setEmissionFilter(emissionFilter,
+                                       doubleStack=doubleStackEmission)
         if channel is not None:
             self.channel = channel
+        if doubleStackEmission is not None:
+            self.doubleStackEmission = doubleStackEmission
+        if doubleStackExcitation is not None:
+            self.doubleStackExcitation = doubleStackExcitation
 
         
             
         
         
-    def setExcitationFilter(self, exFilt):
+    def setExcitationFilter(self, exFilt, doubleStack=False):
         if isinstance(exFilt, InterferenceFilter):
             self.excitationFilter = exFilt
         else:
-            self.excitationFilter = InterferenceFilter(exFilt[0], exFilt[1])
+            self.excitationFilter = InterferenceFilter(exFilt[0], exFilt[1], 
+                                                       doubleStack)
         
         
-    def setEmissionFilter(self, emFilt, doubleStack): 
+    def setEmissionFilter(self, emFilt, doubleStack=False): 
         if isinstance(emFilt, InterferenceFilter):
             self.emissionFilter = emFilt
         else:
