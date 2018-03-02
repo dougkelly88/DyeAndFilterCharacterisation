@@ -202,179 +202,184 @@ sourcesPath = 'Source spectra/'
 #Semrock filters: http://www.laser2000.co.uk
 #Chroma 700 dichroics: emailed from Chroma
 #"""
-#
-dye405 = Dye(name = 'Alexa405', epsilon = 35000, qy = 0.54, 
-             absSpectrum = os.path.join(dyesPath, 'Alexa405abs.txt'), 
-             emSpectrum = os.path.join(dyesPath, 'Alexa405em.txt'))
-          
-dye532 = Dye(name = 'Atto532', epsilon = 115000, qy = 0.9, 
-             absSpectrum = os.path.join(dyesPath, 'ATTO532_PBS.abs.txt'), 
-             emSpectrum = os.path.join(dyesPath, 'ATTO532_PBS.ems.txt'))
-
-dye594 = Dye(name = 'Atto594', epsilon = 120000, qy = 0.85, 
-             absSpectrum = os.path.join(dyesPath, 'ATTO594_PBS.abs.txt'), 
-             emSpectrum = os.path.join(dyesPath, 'ATTO594_PBS.ems.txt'))
-
-dye633 = Dye(name = "Atto655", epsilon = 125000, qy = 0.3, 
-          absSpectrum = os.path.join(dyesPath, 'ATTO655_PBS.abs.txt'), 
-          emSpectrum = os.path.join(dyesPath, 'ATTO655_PBS.ems.txt') )        
-
-dye700 = Dye(name = "Atto700", epsilon = 120000, qy = 0.25, 
-          absSpectrum = os.path.join(dyesPath, 'ATTO700_PBS.abs.txt'), 
-          emSpectrum = os.path.join(dyesPath, 'ATTO700_PBS.ems.txt') )         
-          
-l405 = Laser(channel = 'L405Nm', centreWavelengthNm = 405, fwhmNm = 0.01, 
-             laserOutputPowerMw = 3)
-             
-l532 = Laser(channel = 'L532Nm', centreWavelengthNm = 532, fwhmNm = 0.01, 
-             laserOutputPowerMw = 18)
-             
-l594 = Laser(channel = 'L594Nm', centreWavelengthNm = 594, fwhmNm = 0.01, 
-             laserOutputPowerMw = 25)             
-          
-l633 = Laser(channel = 'L633Nm', centreWavelengthNm = 640, fwhmNm = 0.01, 
-             laserOutputPowerMw = 30)
-          
-l700 = Laser(channel = 'L700Nm', centreWavelengthNm = 701, fwhmNm = 0.01, 
-             laserOutputPowerMw = 30)
-             
-bb = BroadbandSource(name='Thorlabs HPLS343, 3mm LLG',  
-                      integratedPowermW=4000.0, 
-                      spectrum=os.path.join(sourcesPath, 'Thorlabs Plasma Source.txt'))
-             
-fc405 = FilterCube(channel = 'L405Nm', 
-                   excitationFilter = ( 'FF01-390_40', os.path.join(filtersPath, 'FF01-390_40_Spectrum.txt') ), 
-                   dichroicFilter = ( 'Di02-R405', os.path.join(filtersPath, 'Di02-R405_Spectrum.txt') ), 
-                   emissionFilter = ( 'FF01-452_45', os.path.join(filtersPath, 'FF01-452_45_Spectrum.txt') ) )
-                   
-fc532 = FilterCube(channel = 'L532Nm', 
-                   excitationFilter = ( 'FF01-532_3', os.path.join(filtersPath, 'FF01-532_3_spectrum.txt') ), 
-                   dichroicFilter = ( 'Di02-R532', os.path.join(filtersPath, 'Di02-R532_Spectrum.txt') ), 
-                   emissionFilter = ( 'FF01-562_40', os.path.join(filtersPath, 'FF01-562_40_spectrum.txt') ) )
-                   
-fc594 = FilterCube(channel = 'L594Nm', 
-                   excitationFilter = ( 'FF01-591_6', os.path.join(filtersPath, 'FF01-591_6_Spectrum.txt') ), 
-                   dichroicFilter = ( 'Di02-R594', os.path.join(filtersPath, 'Di02-R594_Spectrum.txt') ), 
-                   emissionFilter = ( 'FF01-647_57', os.path.join(filtersPath, 'FF01-647_57_Spectrum.txt') ) )
-             
-fc633 = FilterCube(channel = 'L633Nm', 
-                   excitationFilter = ( 'FF01-640_14', os.path.join(filtersPath, 'FF01-640_14_spectrum.txt') ), 
-                   dichroicFilter = ( 'Di02-R635', os.path.join(filtersPath, 'Di02-R635_Spectrum.txt') ), 
-                   emissionFilter = ( 'FF01-679_41', os.path.join(filtersPath, 'FF01-679_41_Spectrum.txt') ) )
-                   
-fc700old = FilterCube(channel = 'L700Nm', 
-                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
-                   dichroicFilter = ( '725dcxxr', os.path.join(filtersPath, 'Chroma 725dcxxr.txt') ), 
-                   emissionFilter = ( 'FF01-795_150', os.path.join(filtersPath, 'FF01-795_150_Spectrum.txt') ) )
-                   
-fc700new = FilterCube(channel = 'L700Nm', 
-                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
-                   dichroicFilter = ( '725lpxr', os.path.join(filtersPath, 'Chroma 725lpxr.txt') ), 
-                   emissionFilter = ( 'FF01-747_33', os.path.join(filtersPath, 'FF01-747_33_Spectrum.txt') ) )
-                   
-fc405multi = FilterCube(channel = 'L405Nm', 
-                   excitationFilter = ( 'FF01-390_40', os.path.join(filtersPath, 'FF01-390_40_Spectrum.txt') ), 
-                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
-                   emissionFilter = ( 'FF01-452_45', os.path.join(filtersPath, 'FF01-452_45_Spectrum.txt') ) )
-                   
-fc532multi = FilterCube(channel = 'L532Nm', 
-                   excitationFilter = ( 'FF01-532_3', os.path.join(filtersPath, 'FF01-532_3_spectrum.txt') ), 
-                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
-                   emissionFilter = ( 'FF01-562_40', os.path.join(filtersPath, 'FF01-562_40_spectrum.txt') ) )
-                   
-fc594multi = FilterCube(channel = 'L594Nm', 
-                   excitationFilter = ( 'FF01-591_6', os.path.join(filtersPath, 'FF01-591_6_Spectrum.txt') ), 
-                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
-                   emissionFilter = ( 'FF01-647_57', os.path.join(filtersPath, 'FF01-647_57_Spectrum.txt') ) )
-             
-fc633multi = FilterCube(channel = 'L633Nm', 
-                   excitationFilter = ( 'FF01-640_14', os.path.join(filtersPath, 'FF01-640_14_spectrum.txt') ), 
-                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
-                   emissionFilter = ( 'FF01-679_41', os.path.join(filtersPath, 'FF01-679_41_Spectrum.txt') ) )
-                   
-fc700multi = FilterCube(channel = 'L700Nm', 
-                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
-                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
-                   emissionFilter = ( 'FF01-747_33', os.path.join(filtersPath, 'FF01-747_33_Spectrum.txt') ) )
-
-
-#
-#laser_list = [l405, l532, l594, l633, l700]
-#fc_list = [fc405, fc532, fc594, fc633, fc700new]
-#dye_list = [dye405, dye532, dye594, dye633, dye700]
-#multi_fc_list = [fc405multi, fc532multi, fc594multi, fc633multi, fc700multi]
-
-                   
-                   
-camera = Camera(name = 'Andor Zyla 5.5', qeCurve = 1)
-
-objective = Objective(name = 'Olympus UPLANSAPO20x 0.75NA', 
-                      transmissionCurve = os.path.join(opticsPath, 'Olympus UPLANSAPO20x.txt'))
-
-nobj = Objective(name = 'Nikon CFISuperFluor 0.5NA', 
-                      transmissionCurve = os.path.join(opticsPath, 'Nikon CFISuperFluor10x.txt'))
-
-#ratios = []
-#ch_labels = []
-#
-#laser_list = [l405, l532, l594, l633, l700]
-#fc_list = [fc405, fc532, fc594, fc633, fc700new]
-#dye_list = [dye405, dye532, dye594, dye633, dye700]
-#source_list = [bb, bb, bb, bb, bb]
-#
-#for l, bbb, fc, dy in zip(laser_list, source_list, fc_list, dye_list):
-#    d, ch, sig_new = signalFromDyeXInChannelY(bbb, fc, dy, objective, camera)
-#    print(ch)
-#    print('broadband signal = {:0.3f}'.format(sig_new))
-#    d, ch, sig_old = signalFromDyeXInChannelY(l, fc, dy, objective, camera)
-#    print('laser signal = {:0.3f}'.format(sig_old))
-#    
-#    ratios.append(sig_new/sig_old)
-#    ch_labels.append(ch)
-#    
-#fig3 = plt.figure();
-#plt.bar([1, 2, 3, 4, 5], 
-#        ratios, 
-#        tick_label=ch_labels, 
-#        align='center')
-#plt.ylabel('Fractional signal')
-#plt.show()
-
-                           
-#
-#d, ch, sig = signalFromDyeXInChannelY(l700, fc700old, dye700)
-#d, ch, ct = signalFromDyeXInChannelY(l700, fc700old, dye633)
-#
-#print('Crosstalk from 633 in old 700 channel as a fraction of signal:')
-#print(100*ct/sig)
-#
-#
-#d, ch, sig = signalFromDyeXInChannelY(l700, fc700new, dye700)
-#d, ch, ct = signalFromDyeXInChannelY(l700, fc700new, dye633)
-#
-#print('Crosstalk from 633 in new 700 channel as a fraction of signal:')
-#print(100*ct/sig)
-#
-### debug
-###d, ch, sig = signalFromDyeXInChannelY(l405, fc405, dye405)
-###print('{} dye, detection channel {}, signal = {}'.format(d,ch,sig))
 ##
-##out = displayCrosstalkPlot([l405, l532, l594, l633, l700], [fc405, fc532, fc594, fc633, fc700new], [dye405, dye532, dye594, dye633, dye700])
-
-#zip()
-#signalFromDyeXInChannelY(l405, fc405, dye405, objective, camera)
+#dye405 = Dye(name = 'Alexa405', epsilon = 35000, qy = 0.54, 
+#             absSpectrum = os.path.join(dyesPath, 'Alexa405abs.txt'), 
+#             emSpectrum = os.path.join(dyesPath, 'Alexa405em.txt'))
+#          
+#dye532 = Dye(name = 'Atto532', epsilon = 115000, qy = 0.9, 
+#             absSpectrum = os.path.join(dyesPath, 'ATTO532_PBS.abs.txt'), 
+#             emSpectrum = os.path.join(dyesPath, 'ATTO532_PBS.ems.txt'))
 #
-#ratios = []
-#ch_labels = []
+#dye594 = Dye(name = 'Atto594', epsilon = 120000, qy = 0.85, 
+#             absSpectrum = os.path.join(dyesPath, 'ATTO594_PBS.abs.txt'), 
+#             emSpectrum = os.path.join(dyesPath, 'ATTO594_PBS.ems.txt'))
 #
-#for l, f_old, f_new, dy in zip(laser_list, fc_list, multi_fc_list, dye_list):
-#    d, ch, sig_new, prodex1, prodem1 = signalFromDyeXInChannelY(l, f_new, dy, objective, camera)
-#    d, ch, sig_old, prodex2, prodem2 = signalFromDyeXInChannelY(l, f_old, dy, objective, camera)
-#    ol1, dum1em = show_dye_emission_enclosed_by_filters(dy, f_old, objective, camera)
-#    ol2, dum2em = show_dye_emission_enclosed_by_filters(dy, f_new, objective, camera)
-#    print(ch)
-#    print(sig_new/sig_old)
-#    print('ol1 = {:0.3f}'.format(ol1 * dy.QY))
-#    print('ol2 = {:0.3f}'.format(ol2 * dy.QY))
-#    print('Ratio of new:old emission overlaps = {}\n\n'.format(ol2/ol1))
-#    ratios.append(ol2/ol1)
+#dye633 = Dye(name = "Atto655", epsilon = 125000, qy = 0.3, 
+#          absSpectrum = os.path.join(dyesPath, 'ATTO655_PBS.abs.txt'), 
+#          emSpectrum = os.path.join(dyesPath, 'ATTO655_PBS.ems.txt') )        
+#
+#dye700 = Dye(name = "Atto700", epsilon = 120000, qy = 0.25, 
+#          absSpectrum = os.path.join(dyesPath, 'ATTO700_PBS.abs.txt'), 
+#          emSpectrum = os.path.join(dyesPath, 'ATTO700_PBS.ems.txt') )         
+#          
+#l405 = Laser(channel = 'L405Nm', centreWavelengthNm = 405, fwhmNm = 0.01, 
+#             laserOutputPowerMw = 3)
+#             
+#l532 = Laser(channel = 'L532Nm', centreWavelengthNm = 532, fwhmNm = 0.01, 
+#             laserOutputPowerMw = 18)
+#             
+#l594 = Laser(channel = 'L594Nm', centreWavelengthNm = 594, fwhmNm = 0.01, 
+#             laserOutputPowerMw = 25)             
+#          
+#l633 = Laser(channel = 'L633Nm', centreWavelengthNm = 640, fwhmNm = 0.01, 
+#             laserOutputPowerMw = 30)
+#          
+#l700 = Laser(channel = 'L700Nm', centreWavelengthNm = 701, fwhmNm = 0.01, 
+#             laserOutputPowerMw = 30)
+#             
+#bb = BroadbandSource(name='Thorlabs HPLS343, 3mm LLG',  
+#                      integratedPowermW=4000.0, 
+#                      spectrum=os.path.join(sourcesPath, 'Thorlabs Plasma Source.txt'))
+#             
+#fc405 = FilterCube(channel = 'L405Nm', 
+#                   excitationFilter = ( 'FF01-390_40', os.path.join(filtersPath, 'FF01-390_40_Spectrum.txt') ), 
+#                   dichroicFilter = ( 'Di02-R405', os.path.join(filtersPath, 'Di02-R405_Spectrum.txt') ), 
+#                   emissionFilter = ( 'FF01-452_45', os.path.join(filtersPath, 'FF01-452_45_Spectrum.txt') ) , 
+#                   doubleStackEmission = True)
+#                   
+#fc532 = FilterCube(channel = 'L532Nm', 
+#                   excitationFilter = ( 'FF01-532_3', os.path.join(filtersPath, 'FF01-532_3_spectrum.txt') ), 
+#                   dichroicFilter = ( 'Di02-R532', os.path.join(filtersPath, 'Di02-R532_Spectrum.txt') ), 
+#                   emissionFilter = ( 'FF01-562_40', os.path.join(filtersPath, 'FF01-562_40_spectrum.txt') ) )
+#                   
+#fc594 = FilterCube(channel = 'L594Nm', 
+#                   excitationFilter = ( 'FF01-591_6', os.path.join(filtersPath, 'FF01-591_6_Spectrum.txt') ), 
+#                   dichroicFilter = ( 'Di02-R594', os.path.join(filtersPath, 'Di02-R594_Spectrum.txt') ), 
+#                   emissionFilter = ( 'FF01-647_57', os.path.join(filtersPath, 'FF01-647_57_Spectrum.txt') ) )
+#             
+#fc633 = FilterCube(channel = 'L633Nm', 
+#                   excitationFilter = ( 'FF01-640_14', os.path.join(filtersPath, 'FF01-640_14_spectrum.txt') ), 
+#                   dichroicFilter = ( 'Di02-R635', os.path.join(filtersPath, 'Di02-R635_Spectrum.txt') ), 
+#                   emissionFilter = ( 'FF01-679_41', os.path.join(filtersPath, 'FF01-679_41_Spectrum.txt') ) )
+#                   
+#fc700old = FilterCube(channel = 'L700Nm', 
+#                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
+#                   dichroicFilter = ( '725dcxxr', os.path.join(filtersPath, 'Chroma 725dcxxr.txt') ), 
+#                   emissionFilter = ( 'FF01-795_150', os.path.join(filtersPath, 'FF01-795_150_Spectrum.txt') ) )
+#                   
+#fc700new = FilterCube(channel = 'L700Nm', 
+#                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
+#                   dichroicFilter = ( '725lpxr', os.path.join(filtersPath, 'Chroma 725lpxr.txt') ), 
+#                   emissionFilter = ( 'FF01-747_33', os.path.join(filtersPath, 'FF01-747_33_Spectrum.txt') ) )
+#                   
+#fc405multi = FilterCube(channel = 'L405Nm', 
+#                   excitationFilter = ( 'FF01-390_40', os.path.join(filtersPath, 'FF01-390_40_Spectrum.txt') ), 
+#                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+#                   emissionFilter = ( 'FF01-452_45', os.path.join(filtersPath, 'FF01-452_45_Spectrum.txt') ) )
+#                   
+#fc532multi = FilterCube(channel = 'L532Nm', 
+#                   excitationFilter = ( 'FF01-532_3', os.path.join(filtersPath, 'FF01-532_3_spectrum.txt') ), 
+#                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+#                   emissionFilter = ( 'FF01-562_40', os.path.join(filtersPath, 'FF01-562_40_spectrum.txt') ) )
+#                   
+#fc594multi = FilterCube(channel = 'L594Nm', 
+#                   excitationFilter = ( 'FF01-591_6', os.path.join(filtersPath, 'FF01-591_6_Spectrum.txt') ), 
+#                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+#                   emissionFilter = ( 'FF01-647_57', os.path.join(filtersPath, 'FF01-647_57_Spectrum.txt') ) )
+#             
+#fc633multi = FilterCube(channel = 'L633Nm', 
+#                   excitationFilter = ( 'FF01-640_14', os.path.join(filtersPath, 'FF01-640_14_spectrum.txt') ), 
+#                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+#                   emissionFilter = ( 'FF01-679_41', os.path.join(filtersPath, 'FF01-679_41_Spectrum.txt') ) )
+#                   
+#fc700multi = FilterCube(channel = 'L700Nm', 
+#                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
+#                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+#                   emissionFilter = ( 'FF01-747_33', os.path.join(filtersPath, 'FF01-747_33_Spectrum.txt') ) )
+#
+#fc700multi = FilterCube(channel = 'L700Nm', 
+#                   excitationFilter = ( 'FF01-692_40', os.path.join(filtersPath, 'FF01-692_40_Spectrum.txt') ), 
+#                   dichroicFilter = ( 'Chroma multiedge', os.path.join(filtersPath, 'Chroma ZT405-532-594-640-701rpc.txt') ), 
+#                   emissionFilter = ( 'FF01-747_33', os.path.join(filtersPath, 'FF01-747_33_Spectrum.txt') ), 
+#                   doubleStackEmission = True)
+#
+#
+##
+##laser_list = [l405, l532, l594, l633, l700]
+##fc_list = [fc405, fc532, fc594, fc633, fc700new]
+##dye_list = [dye405, dye532, dye594, dye633, dye700]
+##multi_fc_list = [fc405multi, fc532multi, fc594multi, fc633multi, fc700multi]
+#                   
+#camera = Camera(name = 'Andor Zyla 5.5', qeCurve = 1)
+#
+#objective = Objective(name = 'Olympus UPLANSAPO20x 0.75NA', 
+#                      transmissionCurve = os.path.join(opticsPath, 'Olympus UPLANSAPO20x.txt'))
+#
+#nobj = Objective(name = 'Nikon CFISuperFluor 0.5NA', 
+#                      transmissionCurve = os.path.join(opticsPath, 'Nikon CFISuperFluor10x.txt'))
+#
+##ratios = []
+##ch_labels = []
+##
+##laser_list = [l405, l532, l594, l633, l700]
+##fc_list = [fc405, fc532, fc594, fc633, fc700new]
+##dye_list = [dye405, dye532, dye594, dye633, dye700]
+##source_list = [bb, bb, bb, bb, bb]
+##
+##for l, bbb, fc, dy in zip(laser_list, source_list, fc_list, dye_list):
+##    d, ch, sig_new = signalFromDyeXInChannelY(bbb, fc, dy, objective, camera)
+##    print(ch)
+##    print('broadband signal = {:0.3f}'.format(sig_new))
+##    d, ch, sig_old = signalFromDyeXInChannelY(l, fc, dy, objective, camera)
+##    print('laser signal = {:0.3f}'.format(sig_old))
+##    
+##    ratios.append(sig_new/sig_old)
+##    ch_labels.append(ch)
+##    
+##fig3 = plt.figure();
+##plt.bar([1, 2, 3, 4, 5], 
+##        ratios, 
+##        tick_label=ch_labels, 
+##        align='center')
+##plt.ylabel('Fractional signal')
+##plt.show()
+#
+#                           
+##
+##d, ch, sig = signalFromDyeXInChannelY(l700, fc700old, dye700)
+##d, ch, ct = signalFromDyeXInChannelY(l700, fc700old, dye633)
+##
+##print('Crosstalk from 633 in old 700 channel as a fraction of signal:')
+##print(100*ct/sig)
+##
+##
+##d, ch, sig = signalFromDyeXInChannelY(l700, fc700new, dye700)
+##d, ch, ct = signalFromDyeXInChannelY(l700, fc700new, dye633)
+##
+##print('Crosstalk from 633 in new 700 channel as a fraction of signal:')
+##print(100*ct/sig)
+##
+#### debug
+####d, ch, sig = signalFromDyeXInChannelY(l405, fc405, dye405)
+####print('{} dye, detection channel {}, signal = {}'.format(d,ch,sig))
+###
+###out = displayCrosstalkPlot([l405, l532, l594, l633, l700], [fc405, fc532, fc594, fc633, fc700new], [dye405, dye532, dye594, dye633, dye700])
+#
+##zip()
+##signalFromDyeXInChannelY(l405, fc405, dye405, objective, camera)
+##
+##ratios = []
+##ch_labels = []
+##
+##for l, f_old, f_new, dy in zip(laser_list, fc_list, multi_fc_list, dye_list):
+##    d, ch, sig_new, prodex1, prodem1 = signalFromDyeXInChannelY(l, f_new, dy, objective, camera)
+##    d, ch, sig_old, prodex2, prodem2 = signalFromDyeXInChannelY(l, f_old, dy, objective, camera)
+##    ol1, dum1em = show_dye_emission_enclosed_by_filters(dy, f_old, objective, camera)
+##    ol2, dum2em = show_dye_emission_enclosed_by_filters(dy, f_new, objective, camera)
+##    print(ch)
+##    print(sig_new/sig_old)
+##    print('ol1 = {:0.3f}'.format(ol1 * dy.QY))
+##    print('ol2 = {:0.3f}'.format(ol2 * dy.QY))
+##    print('Ratio of new:old emission overlaps = {}\n\n'.format(ol2/ol1))
+##    ratios.append(ol2/ol1)

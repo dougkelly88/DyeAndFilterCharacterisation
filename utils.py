@@ -99,7 +99,6 @@ def integrateSpectra(spectra, dlambda):
 def multiplySpectra(spectra, dl = 0.5):
     """ spectra = list of Nx2 arrays describing filter or dye spectra to be multiplied"""
     """ dl = optional parameter to control in-built interpolation"""
-    print('multiplying')
     interpSpectra = [interpolateSpectrum(sp, dl) for sp in spectra]
     
     lowerLimit = min( [min(spectrum[:,0]) for spectrum in interpSpectra] )
