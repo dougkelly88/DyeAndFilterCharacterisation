@@ -80,13 +80,7 @@ def integrateSpectra(spectra, dlambda):
     lowerLimit = min( [min(spectrum[:,0]) for spectrum in spectra] )
     upperLimit = max( [max(spectrum[:,0]) for spectrum in spectra] )
 
-    
-    #trimmedSpectra = [spectrum[(spectrum[:,0] >= lowerLimit) & (spectrum[:,0] <= upperLimit)] for spectrum in spectra]
     trimmedSpectra = [padWithZeros(spectrum, lowerLimit, upperLimit) for spectrum in spectra]
-#    for spectrum in trimmedSpectra:
-#        plt.plot(spectrum[:,0], spectrum[:,1])
-#    plt.title('Spectra for integration')
-#    plt.show()
     
     product = trimmedSpectra[0][:,1]
     for idx in np.arange(1,len(spectra)):
@@ -97,20 +91,33 @@ def integrateSpectra(spectra, dlambda):
     for spectrum in trimmedSpectra:
         product = np.multiply(product, spectrum[:,1])
     
-    
-#    min_spectrum = min(np.asarray(trimmedSpectra), 1)
-#    fig = plt.figure()        
-#    lmbda = np.linspace(lowerLimit, upperLimit, num=1+(upperLimit-lowerLimit)/dlambda)    
-#    print(lmbda.shape)    
-#    print(product.shape)
-#    
-#    plt.plot(lmbda, product)
-    
     integral = np.sum(product) * dlambda
-#    print(product)
+
     
     return integral
+
+def multiplySpectra(spectra, dl = 0.5):
+    """ spectra = list of Nx2 arrays describing filter or dye spectra to be multiplied"""
+    """ dl = optional parameter to control in-built interpolation"""
+    print('multiplying')
+    interpSpectra = [interpolateSpectrum(sp, dl) for sp in spectra]
     
+    lowerLimit = min( [min(spectrum[:,0]) for spectrum in interpSpectra] )
+    upperLimit = max( [max(spectrum[:,0]) for spectrum in interpSpectra] )
+
+    trimmedSpectra = [padWithZeros(spectrum, lowerLimit, upperLimit) for spectrum in interpSpectra]
+        
+    product = np.ones((trimmedSpectra[0][:,1].shape))
+
+    for spectrum in trimmedSpectra:
+        product = np.multiply(product, spectrum[:,1])
+
+    
+    out = np.stack([trimmedSpectra[0][:,0], product], axis=1)
+    return out
+
+
+   
 def normaliseSpectrum(spectrum):
     """ Normalise maximum of spectrum to 1 """
     
