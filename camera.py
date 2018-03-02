@@ -55,6 +55,15 @@ class Camera(object):
             t = np.ones(round((mx-mn)/dl + 1))
             self.qeCurve = np.vstack((l,t)).T
             
+    def getQEValue(self, wavelength):
+        """ Return the value read from the QE curve at a given wavelength """
+        if ((wavelength < np.min(self.qeCurve[:,0])) | (wavelength > np.max(self.qeCurve[:,0]))): 
+            print('Requested value outside range!')
+            return 0;
+        spectrum = utils.interpolateSpectrum(self.qeCurve, 0.5)
+        return spectrum[np.argmin(abs(spectrum[:,0] - wavelength)), 1]
+        
+            
     def setSensorSize(self, sensorSizeXYMm):
         """ take tuple containing sensor dimensions in mm (X,Y) and set size """
         self.sensorSizeXYMm = sensorSizeXYMm
