@@ -17,22 +17,31 @@ class InterferenceFilter(object):
     """ 
     name = description/part number of a particular filter
     transmissionSpectrum = Nx2 array describing the spectral response of the filter. If a path is passed, the spectum is read from a file
+    doubleStack = boolean toggle for whether filters should be duplicated
     """
     
     name = 'FF01-000/00'
     transmissionSpectrum = np.array([[x+500 for x in range(100)], 
                                      [1 * (x>50) for x in range(100)]]).T
     
-    def __init__(self, name = None, spectrum = None):
+    def __init__(self, name = None, spectrum = None, doubleStack = None):
 
         self.name = 'FF01-000/00'
         self.transmissionSpectrum = np.array([[x+500 for x in range(100)], 
                                      [1 * (x>50) for x in range(100)]]).T
+        self.doubleStack = False;
                                      
         if name is not None:
             self.name = name
         if spectrum is not None:
-            self.setTransmissionSpectrum(spectrum)
+            if doubleStack is None:
+                self.setTransmissionSpectrum(spectrum, False)
+                self.doubleStack = False
+            else:
+                self.setTransmissionSpectrum(spectrum, doubleStack)
+                self.doubleStack = doubleStack
+        
+
         
         
     def setName(self, name):
@@ -41,7 +50,7 @@ class InterferenceFilter(object):
     def getSpectrum(self):
         return self.transmissionSpectrum
         
-    def setTransmissionSpectrum(self, spectrum):
+    def setTransmissionSpectrum(self, spectrum, doubleStack):
         if isinstance(spectrum, np.ndarray):
                 if spectrum.shape[1] == 2:
                     self.transmissionSpectrum = spectrum
@@ -50,3 +59,7 @@ class InterferenceFilter(object):
                     # throw error - wrong shape of spectrum array!
         elif isinstance(spectrum, str):
             self.transmissionSpectrum = utils.readSpectrumFile(spectrum)
+            
+        if doubleStack:
+            self.transmissionSpectrum[:,1] = (self.transmissionSpectrum[:,1]  * 
+                                     self.transmissionSpectrum[:,1])

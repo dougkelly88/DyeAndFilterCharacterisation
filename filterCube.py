@@ -19,21 +19,28 @@ class FilterCube(object):
     """     
     
     def __init__(self, channel = None, excitationFilter = None, 
-                 dichroicFilter = None, emissionFilter = None):
+                 dichroicFilter = None, emissionFilter = None, 
+                 doubleStackEmission = None):
                      
         self.excitationFilter = InterferenceFilter()
         self.dichroicFilter = InterferenceFilter()
         self.emissionFilter = InterferenceFilter()
         self.channel = 'Lxxxnm'   
+        self.doubleStackEmission = False;
     
         if excitationFilter is not None:
             self.setExcitationFilter(excitationFilter)
         if dichroicFilter is not None:
             self.setDichroicFilter(dichroicFilter)
         if emissionFilter is not None:
-            self.setEmissionFilter(emissionFilter)
+            if doubleStackEmission is None:
+                self.setEmissionFilter(emissionFilter)
+            else:
+                self.setEmissionFilter(emissionFilter, doubleStackEmission)
         if channel is not None:
             self.channel = channel
+
+        
             
         
         
@@ -44,11 +51,12 @@ class FilterCube(object):
             self.excitationFilter = InterferenceFilter(exFilt[0], exFilt[1])
         
         
-    def setEmissionFilter(self, emFilt): 
+    def setEmissionFilter(self, emFilt, doubleStack): 
         if isinstance(emFilt, InterferenceFilter):
             self.emissionFilter = emFilt
         else:
-            self.emissionFilter = InterferenceFilter(emFilt[0], emFilt[1])
+            self.emissionFilter = InterferenceFilter(emFilt[0], emFilt[1],
+                                                     doubleStack)
         
         
     def setDichroicFilter(self, diFilt):   
